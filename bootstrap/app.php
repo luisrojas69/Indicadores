@@ -12,7 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectUsersTo('/home');
+        $middleware->alias([
+                'erp.connection' => \App\Http\Middleware\EnsureErpConnection::class,
+            ]);
     })
+
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
