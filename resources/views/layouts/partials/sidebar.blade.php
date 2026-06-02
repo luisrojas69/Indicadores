@@ -102,6 +102,7 @@
         {{-- │  ARTÍCULOS                                          │ --}}
         {{-- └─────────────────────────────────────────────────────┘ --}}
         @if(config('app_client.modules.articulos'))
+            @can('inventario.articulos.ver')
             <div class="nav-section-label">Catálogo</div>
 
             <a href="{{ route('articulos.index') }}"
@@ -117,6 +118,7 @@
                 <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
                 <span class="nav-label">Rendimiento</span>
             </a>
+            @endcan
         @endif
 
         {{-- ┌─────────────────────────────────────────────────────┐ --}}
@@ -142,7 +144,7 @@
             @can('vendedor.catalogo.ver')
                 <div class="nav-section-label">Modo Tablet</div>
 
-                <a href="#"
+                <a href="{{ route('tablet.catalogo') }}"
                    class="nav-item-link {{ request()->routeIs('tablet*') ? 'active' : '' }}"
                    data-tooltip="Catálogo Tablet">
                     <span class="nav-icon"><i class="fas fa-tablet-screen-button"></i></span>
@@ -154,23 +156,29 @@
         {{-- ┌─────────────────────────────────────────────────────┐ --}}
         {{-- │  SEGURIDAD                                          │ --}}
         {{-- └─────────────────────────────────────────────────────┘ --}}
-        @can('seguridad.dashboard')
+
             <div class="nav-section-label">Administración</div>
 
-            <a href="#" {{-- route('seguridad.usuarios.index') --}}
-               class="nav-item-link {{ request()->routeIs('seguridad.usuarios*') ? 'active' : '' }}"
+            <a href="{{ route('admin.users.index') }}"
+               class="nav-item-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}"
                data-tooltip="Usuarios">
                 <span class="nav-icon"><i class="fas fa-user-shield"></i></span>
                 <span class="nav-label">Usuarios</span>
             </a>
 
-            <a href="#" {{-- route('seguridad.roles.index') --}}
-               class="nav-item-link {{ request()->routeIs('seguridad.roles*') ? 'active' : '' }}"
-               data-tooltip="Roles & Permisos">
+            <a href="{{ route('admin.roles.index') }}"
+               class="nav-item-link {{ request()->routeIs('admin.roles*') ? 'active' : '' }}"
+               data-tooltip="Roles">
                 <span class="nav-icon"><i class="fas fa-key"></i></span>
-                <span class="nav-label">Roles & Permisos</span>
+                <span class="nav-label">Roles</span>
             </a>
-        @endcan
+            <a href="{{ route('admin.permissions.index') }}"
+               class="nav-item-link {{ request()->routeIs('admin.permissions*') ? 'active' : '' }}"
+               data-tooltip="Permisos">
+                <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
+                <span class="nav-label">Permisos</span>
+            </a>
+
 
     </nav>
 
@@ -182,7 +190,7 @@
                     {{ strtoupper(substr(auth()->user()?->name ?? 'U', 0, 1)) }}
                 </div>
                 <div class="user-info">
-                    <div class="user-name">{{ auth()->user()?->name }}</div>
+                    <div class="user-name">{{ auth()->user()?->fullname }}</div>
                     <div class="user-role">
                         {{ auth()->user()?->roles?->first()?->name ?? 'Usuario' }}
                     </div>
@@ -190,7 +198,7 @@
             </div>
             <ul class="dropdown-menu dropdown-menu-dark mb-2" style="min-width: 190px; border-radius: 10px;">
                 <li>
-                    <a class="dropdown-item" href="#">
+                    <a class="dropdown-item" href="{{ route('profile') }}">
                         <i class="fas fa-user fa-sm me-2 opacity-50"></i> Mi Perfil
                     </a>
                 </li>

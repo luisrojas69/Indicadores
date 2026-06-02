@@ -27,7 +27,6 @@
         color: #fff;
         position: relative;
         overflow: hidden;
-        height: 100%;
         min-height: 260px;
     }
     .art-hero::after {

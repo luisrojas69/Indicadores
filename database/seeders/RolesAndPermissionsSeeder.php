@@ -97,6 +97,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'inventario.stock.configurar',
                 'inventario.reporte.consolidado.ver',
                 'inventario.reporte.consolidado.exportar',
+                'inventario.articulos.ver'
             ],
 
             // ── Ventas / Módulo tablet y caja ─────────────────────────────

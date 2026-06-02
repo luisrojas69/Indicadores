@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="{{ config('app_client.name') }} — Panel de Inteligencia de Negocios">
 
-    <title>@yield('title', 'Dashboard') — {{ config('app_client.short_name') }}</title>
+    <title>{{ config('app.name', 'LR-APP') }} — {{ config('app_client.short_name')  }} | @yield('title-page')</title>
 
     {{-- Favicon --}}
     <link rel="icon" type="image/x-icon" href="{{ asset(config('app_client.favicon', 'favicon.ico')) }}">
@@ -25,6 +25,10 @@
     {{-- Flatpickr — date range picker --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <link href="{{ asset('vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+
+    {{-- SweetAlert2 --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     {{-- CSS Variables de Branding — inyectadas desde config/app_client.php --}}
     <style>
@@ -80,18 +84,18 @@
             min-height: 100vh;
         }
 
-        /* ── Sidebar ─────────────────────────────────────────── */
+/* ── Sidebar ─────────────────────────────────────────── */
         .app-sidebar {
             width: var(--sidebar-width);
-            min-height: 100vh;
+            height: 100vh; /* CAMBIO: Fijamos la altura estricta a la pantalla */
             background: var(--brand-sidebar-bg);
             display: flex;
             flex-direction: column;
             position: fixed;
             top: 0; left: 0;
             z-index: 1030;
-            transition: width var(--transition-normal);
-            overflow: hidden;
+            transition: width var(--transition-normal), transform var(--transition-normal); /* Agregada transición de transform para mobile */
+            overflow: hidden; /* Mantiene el contenedor principal limpio de barras de scroll fejas */
         }
 
         .app-sidebar.collapsed {
@@ -105,7 +109,7 @@
             padding: 0 20px;
             border-bottom: 1px solid rgba(255,255,255,.07);
             gap: 12px;
-            flex-shrink: 0;
+            flex-shrink: 0; /* Asegura que la cabecera NUNCA se aplaste */
             text-decoration: none;
         }
 
@@ -655,19 +659,29 @@
         <div class="app-content">
 
             {{-- Alertas flash --}}
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert"
-                     style="border-radius: 10px;">
-                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            @if(session('success'))
+                <div class="alert alert-success alert-enhanced alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3 text-success"></i>
+                        <div>
+                            <strong>¡Operación Exitosa!</strong><br>
+                            {{ session('success') }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert"
-                     style="border-radius: 10px;">
-                    <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            @if(session('error'))
+                <div class="alert alert-danger alert-enhanced alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3 text-danger"></i>
+                        <div>
+                            <strong>¡Operación Fallida!</strong><br>
+                            {{ session('error') }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
@@ -691,6 +705,10 @@
     </main>
 </div>
 
+<script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+
+<script src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
+
 {{-- Bootstrap 5 JS --}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {{-- Flatpickr --}}
@@ -698,6 +716,8 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 {{-- Chart.js --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+{{-- SweetAlert2 --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 (function () {
@@ -737,7 +757,7 @@
     });
 
     // ── Auto-dismiss flash alerts ─────────────────────────────────────────
-    document.querySelectorAll('.alert').forEach(el => {
+    document.querySelectorAll('.alert-enhanced').forEach(el => {
         setTimeout(() => {
             const bsAlert = bootstrap.Alert.getOrCreateInstance(el);
             if (bsAlert) bsAlert.close();
@@ -755,5 +775,6 @@
 </script>
 
 @stack('scripts')
+@yield('scripts')
 </body>
 </html>

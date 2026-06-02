@@ -241,7 +241,7 @@ class RendimientoService
             'producto_top'         => $productoTop ? [
                 'codigo'      => $productoTop['codigo'],
                 'descripcion' => $productoTop['descripcion'],
-                'unidades'    => $productoTop['total_unidades'],
+                'unidades'    => $productoTop['codigo'],
             ] : null,
             'mes_mas_activo'       => $mesMasActivo,
             'mes_mas_activo_label' => self::MESES[$mesMasActivo] ?? '—',
@@ -296,9 +296,8 @@ class RendimientoService
         foreach ($evolucionPorCodigo as $codigo => $serie) {
             if ($idx >= $maxSeries) break;
 
-            $descripcion = $articulosMap->get($codigo)['descripcion']
-                ?? $codigo;
-            $label = mb_strimwidth($descripcion, 0, 35, '…');
+            $descripcion = $articulosMap->get((string) $codigo)['descripcion'] ?? $codigo;
+            $label = mb_strimwidth((string) $descripcion, 0, 35, '…');
             $color = $palette[$idx % count($palette)];
 
             $datasets[] = [
@@ -337,7 +336,8 @@ class RendimientoService
         $top    = $articulosEnriquecidos->sortByDesc('total_unidades')->take($topN);
         $resto  = $articulosEnriquecidos->sortByDesc('total_unidades')->slice($topN)->sum('total_unidades');
 
-        $labels = $top->map(fn ($a) => mb_strimwidth($a['descripcion'], 0, 28, '…'))->values()->toArray();
+
+        $labels = $top->map(fn ($a) => mb_strimwidth((string) $a['descripcion'], 0, 28, '…'))->values()->toArray();
         $data   = $top->pluck('total_unidades')->values()->map(fn ($v) => (float) $v)->toArray();
         $colors = array_slice($palette, 0, $top->count());
 

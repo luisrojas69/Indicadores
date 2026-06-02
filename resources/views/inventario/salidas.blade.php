@@ -265,7 +265,7 @@
                         @else
                             <i class="fas fa-calendar-day" style="font-size:11px;"></i>
                         @endif
-                        {{ \Carbon\Carbon::parse($fecha)->format(config('app_client.locale.date_format')) }}
+                        {{ $fecha }}
                         @if($esSospechoso)
                             <span style="font-size:10px;opacity:.8;">&mdash; Actividad inusual</span>
                         @endif

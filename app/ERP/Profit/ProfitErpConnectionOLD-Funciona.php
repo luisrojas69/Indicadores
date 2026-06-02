@@ -8,7 +8,6 @@ use App\Erp\Contracts\ErpConnectionInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use InvalidArgumentException;
 use Throwable;
 
 /**
@@ -43,17 +42,10 @@ class ProfitErpConnection implements ErpConnectionInterface
 
     /**
      * Retorna el nombre físico de una tabla desde config/profit.php.
-     * BLINDAJE: Lanza excepción si la tabla no está definida.
      */
     private function profitTable(string $key): string
     {
-        $tableName = config("profit.tables.{$key}");
-
-        if (empty($tableName)) {
-            throw new InvalidArgumentException("CRÍTICO: La llave de tabla '{$key}' no existe en config/profit.php.");
-        }
-
-        return $tableName;
+        return config("profit.tables.{$key}", $key);
     }
 
     /**
@@ -64,6 +56,15 @@ class ProfitErpConnection implements ErpConnectionInterface
         return DB::connection($this->connection);
     }
 
+    /**
+     * Ejecuta un callable y retorna su resultado.
+     * En caso de excepción, loguea y retorna el $fallback.
+     *
+     * @template T
+     * @param  callable(): T  $callback
+     * @param  T              $fallback
+     * @return T
+     */
     private function safe(callable $callback, mixed $fallback): mixed
     {
         try {
@@ -71,8 +72,7 @@ class ProfitErpConnection implements ErpConnectionInterface
         } catch (Throwable $e) {
             Log::error('[ProfitErpConnection] Error en consulta', [
                 'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
+                'trace'   => $e->getTraceAsString(),
             ]);
 
             return $fallback;
@@ -81,15 +81,16 @@ class ProfitErpConnection implements ErpConnectionInterface
 
     /*
     |--------------------------------------------------------------------------
-    | Diagnóstico Avanzado de Conexión e Integridad (Súper Health-Check)
+    | Diagnóstico de Conexión
     |--------------------------------------------------------------------------
     */
 
     public function isHealthy(): bool
     {
-        $info = $this->getConnectionInfo();
-        // Es saludable si hay ping Y no falta ninguna tabla estructural
-        return $info['status'] === 'OK' && empty($info['missing_tables']);
+        return $this->safe(function () {
+            $this->con()->selectOne('SELECT 1 AS ping');
+            return true;
+        }, false);
     }
 
     public function getConnectionInfo(): array
@@ -97,52 +98,22 @@ class ProfitErpConnection implements ErpConnectionInterface
         return $this->safe(function () {
             $dbConfig = config("database.connections.{$this->connection}", []);
 
-            // 1. Verificamos Ping
-            $this->con()->selectOne('SELECT 1 AS ping');
-
-            // 2. Verificamos integridad de la suite de tablas
-            $mappedTables = config('profit.tables', []);
-            $tableNames = array_values($mappedTables);
-
-            // Consultamos a SQL Server cuáles de estas tablas existen realmente
-            $placeholders = implode(',', array_fill(0, count($tableNames), '?'));
-            $existingTables = $this->con()->select("
-                SELECT TABLE_NAME
-                FROM INFORMATION_SCHEMA.TABLES
-                WHERE TABLE_NAME IN ({$placeholders})
-            ", $tableNames);
-
-            $existingTableNames = array_column((array) $existingTables, 'TABLE_NAME');
-
-            // SQL Server puede ser case-insensitive, así que normalizamos para comparar
-            $existingLower = array_map('strtolower', $existingTableNames);
-            $missingTables = [];
-
-            foreach ($mappedTables as $key => $physicalName) {
-                if (!in_array(strtolower($physicalName), $existingLower)) {
-                    $missingTables[$key] = $physicalName;
-                }
-            }
-
             return [
-                'driver'         => $dbConfig['driver']   ?? 'sqlsrv',
-                'host'           => $dbConfig['host']     ?? '—',
-                'database'       => $dbConfig['database'] ?? '—',
-                'erp'            => 'Profit Plus 2K8',
-                'connection'     => $this->connection,
-                'status'         => 'OK',
-                'missing_tables' => $missingTables, // Si está vacío, la suite está perfecta
+                'driver'     => $dbConfig['driver']   ?? 'sqlsrv',
+                'host'       => $dbConfig['host']      ?? '—',
+                'database'   => $dbConfig['database']  ?? '—',
+                'erp'        => 'Profit Plus 2K8',
+                'connection' => $this->connection,
+                'status'     => $this->isHealthy() ? 'OK' : 'ERROR',
             ];
         }, [
-            'driver'         => 'sqlsrv',
-            'host'           => '—',
-            'database'       => '—',
-            'erp'            => 'Profit Plus 2K8',
-            'status'         => 'ERROR',
-            'missing_tables' => ['unknown' => 'No se pudo conectar a la BD'],
+            'driver'   => 'sqlsrv',
+            'host'     => '—',
+            'database' => '—',
+            'erp'      => 'Profit Plus 2K8',
+            'status'   => 'ERROR',
         ]);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -163,9 +134,9 @@ class ProfitErpConnection implements ErpConnectionInterface
 
         return $this->safe(function () use ($dateFrom, $dateTo, $default) {
             // Mapeo estricto de las tablas nativas de Profit 2K8
-            $facturaEnc = $this->profitTable('factura_enc');
-            $cobroEnc   = $this->profitTable('cobro_enc');
-            $cobroDet   = $this->profitTable('cobro_det');
+            $facturaEnc = $this->profitTable('factura');   // Encabezado de Facturas de Venta
+            $cobroEnc   = $this->profitTable('cobros');    // Encabezado de Cobros
+            $cobroDet   = $this->profitTable('reng_cob');  // Renglones de Cobros (Abonos Aplicados)
 
             // ── 1. CÁLCULO DEL PERÍODO ACTUAL ───────────────────────────────────
             // Monto Facturado Neto y Clientes Activos (desde encabezado de factura)
@@ -242,9 +213,9 @@ class ProfitErpConnection implements ErpConnectionInterface
         ];
 
         return $this->safe(function () use ($dateFrom, $dateTo, $default) {
-            $documCc = $this->profitTable('cxc_docum');
-            $rengCob = $this->profitTable('cobro_det');
-            $cobros  = $this->profitTable('cobro_enc');
+            $documCc = $this->profitTable('docum_cc');
+            $rengCob = $this->profitTable('reng_cob');
+            $cobros  = $this->profitTable('cobros');
             $hoy     = now()->toDateString();
 
             // 1. Subconsulta para consolidar todos los abonos realizados por documento
@@ -328,10 +299,9 @@ class ProfitErpConnection implements ErpConnectionInterface
     public function getTopProductos(string $dateFrom, string $dateTo, int $limit = 10): Collection
     {
         return $this->safe(function () use ($dateFrom, $dateTo, $limit) {
-            $detalle    = $this->profitTable('factura_det');
-            $encabezado = $this->profitTable('factura_enc');
-            $articulo   = $this->profitTable('articulo');
-
+            $detalle  = $this->profitTable('reng_fac');
+            $encabezado = $this->profitTable('factura');
+            $articulo = $this->profitTable('art');
 
             $rows = $this->con()->select("
                 SELECT TOP (:limit)
@@ -370,11 +340,10 @@ class ProfitErpConnection implements ErpConnectionInterface
     {
         return $this->safe(function () use ($dateFrom, $dateTo) {
             // Mapeo dinámico y estricto de tablas de Profit 2K8
-            $facturaEnc = $this->profitTable('factura_enc');
-            $cobroEnc   = $this->profitTable('cobro_enc');
-            $cobroDet   = $this->profitTable('cobro_det');
+            $facturaEnc = $this->profitTable('factura');
+            $cobroEnc   = $this->profitTable('cobros');
+            $cobroDet   = $this->profitTable('reng_cob');
             $vendedor   = $this->profitTable('vendedor');
-
 
             // Limpieza de strings para inyección segura en entornos legacy
             $from = preg_replace('/[^0-9\- :]/', '', $dateFrom);
@@ -448,9 +417,9 @@ class ProfitErpConnection implements ErpConnectionInterface
         }
 
         return $this->safe(function () use ($dateFrom, $dateTo, $costField) {
-            $detalle    = $this->profitTable('factura_det');
-            $encabezado = $this->profitTable('factura_enc');
-            $articulo   = $this->profitTable('articulo');
+            $detalle    = $this->profitTable('reng_fac');
+            $encabezado = $this->profitTable('factura');
+            $articulo   = $this->profitTable('art');
 
             // $costField ya está validado contra whitelist — interpolación segura
             $rows = $this->con()->select("
@@ -506,10 +475,9 @@ class ProfitErpConnection implements ErpConnectionInterface
         ];
 
         return $this->safe(function () use ($dateFrom, $dateTo, $costField, $default) {
-            $detalle    = $this->profitTable('factura_det');
-            $encabezado = $this->profitTable('factura_enc');
-            $articulo   = $this->profitTable('articulo');
-
+            $detalle    = $this->profitTable('reng_fac');
+            $encabezado = $this->profitTable('factura');
+            $articulo   = $this->profitTable('art');
 
             $result = $this->con()->selectOne("
                 SELECT
@@ -551,8 +519,8 @@ class ProfitErpConnection implements ErpConnectionInterface
     public function getStockCritico(): Collection
     {
         return $this->safe(function () {
-            $articulo    = $this->profitTable('articulo');
-            $stock_almac = $this->profitTable('stock_almacen');
+            $articulo = $this->profitTable('art');
+            $stock_almac = $this->profitTable('st_almac');
 
 
             // La query obtiene el stock actual sumando el stock de todos los almacenes para cada artículo, y luego filtra aquellos donde el stock actual es menor o igual al stock mínimo definido en la tabla de artículos.
@@ -595,12 +563,10 @@ class ProfitErpConnection implements ErpConnectionInterface
     {
         return $this->safe(function () use ($dateFrom, $dateTo) {
             // Ajuste estricto a las tablas de Órdenes de Compra de Profit 2K8
-            $ordenEnc  = $this->profitTable('orden_compra_enc');
-            $ordenDet  = $this->profitTable('orden_compra_det');
-            $articulo  = $this->profitTable('articulo');
-            $proveedor = $this->profitTable('proveedor');
-
-
+            $ordenEnc    = $this->profitTable('ordenes');   // Encabezado de Órdenes
+            $ordenDet    = $this->profitTable('reng_ord');  // Renglones de Órdenes
+            $articulo    = $this->profitTable('art');       // Artículos
+            $proveedor   = $this->profitTable('prov');      // Proveedores
 
             $rows = $this->con()->select("
                 SELECT
@@ -647,10 +613,12 @@ class ProfitErpConnection implements ErpConnectionInterface
     {
         return $this->safe(function () use ($dateFrom, $dateTo) {
             // Mapeo de tablas reales en Profit 2K8
-            $ajusteEnc = $this->profitTable('ajuste_inv_enc');
-            $ajusteDet = $this->profitTable('ajuste_inv_det');
-            $tipoAju   = $this->profitTable('tipo_aju');
-            $articulo  = $this->profitTable('articulo');
+            $ajusteEnc = $this->profitTable('ajuste');    // Encabezado de Ajustes
+            $ajusteDet = $this->profitTable('reng_aju');  // Renglones de Ajustes
+            $tipoAju   = $this->profitTable('tipo_aju');  // Configuración de Tipos de Ajuste
+            $articulo  = $this->profitTable('art');       // Catálogo de Artículos
+
+            // Dinámico según la configuración del sistema (ej: COS_PRO_UN, ULT_COS_UN)
             $costField = config('app_client.business.cost_field', 'COS_PRO_UN');
 
             $rows = $this->con()->select("
@@ -695,9 +663,9 @@ class ProfitErpConnection implements ErpConnectionInterface
     public function getArticulos(array $filters = [], int $perPage = 15, int $page = 1): array
     {
         return $this->safe(function () use ($filters, $perPage, $page) {
-            $articulo   = $this->profitTable('articulo');
-            $catTable   = $this->profitTable('categoria_articulo');
-            $colorTable = $this->profitTable('color_articulo');
+            $articulo   = $this->profitTable('art');
+            $catTable   = $this->profitTable('cat_art');
+            $colorTable = $this->profitTable('colores');
 
             $offset     = ($page - 1) * $perPage;
 
@@ -770,16 +738,18 @@ class ProfitErpConnection implements ErpConnectionInterface
     {
         return $this->safe(function () use ($codigo) {
             // Nombres dinámicos de las tablas del ERP
-            $artTable     = $this->profitTable('articulo');
-            $catTable     = $this->profitTable('categoria_articulo');
-            $linTable     = $this->profitTable('linea_articulo');
-            $sublTable    = $this->profitTable('sublinea_articulo');
-            $colorTable   = $this->profitTable('color_articulo');
-            $provTable    = $this->profitTable('proveedor');
-            $facturaTable = $this->profitTable('factura_enc');
-            $rengFacTable = $this->profitTable('factura_det');
-            $comprasTable = $this->profitTable('factura_compra_enc');
-            $rengComTable = $this->profitTable('factura_compra_det');
+            $artTable        = $this->profitTable('art');
+            $catTable        = $this->profitTable('cat_art');
+            $linTable        = $this->profitTable('lin_art');
+            $sublTable       = $this->profitTable('sub_lin'); // Nota: Suele ser sub_lin o co_subl según versión
+            $colorTable      = $this->profitTable('colores');
+            $provTable       = $this->profitTable('prov');
+
+            $facturaTable    = $this->profitTable('factura');
+            $rengFacTable    = $this->profitTable('reng_fac');
+
+            $comprasTable    = $this->profitTable('compras');
+            $rengComTable    = $this->profitTable('reng_com');
 
             // 1. Consulta Principal del Artículo con sus Tablas Relacionadas
             $row = $this->con()->selectOne("
@@ -901,89 +871,53 @@ class ProfitErpConnection implements ErpConnectionInterface
         }
 
         return $this->safe(function () use ($codigos, $year) {
-            $tablaFactura = $this->profitTable('factura_enc');
-            $tablaRenglon = $this->profitTable('factura_det');
+            // 1. Declaración correcta de variables de tablas
+            $tablaFactura = $this->profitTable('factura');
+            $tablaRenglon = $this->profitTable('reng_fac');
 
-            $placeholders = implode(',', array_map(fn ($i) => ":cod_{$i}", range(0, count($codigos) - 1)));
+            // Construir placeholders seguros para la cláusula IN
+            $placeholders = implode(',', array_map(
+                fn ($i) => ":cod_{$i}",
+                range(0, count($codigos) - 1)
+            ));
+
             $params = ['year' => $year];
             foreach ($codigos as $i => $codigo) {
                 $params["cod_{$i}"] = $codigo;
             }
 
+            // 2. Consulta corregida usando las variables correctas
             $rows = $this->con()->select("
                 SELECT
-                    LTRIM(RTRIM(d.co_art)) AS codigo,
+                    d.co_art          AS codigo,
                     MONTH(e.fec_emis) AS mes,
-                    SUM(d.total_art) AS unidades
+                    SUM(d.total_art)  AS unidades
                 FROM [{$tablaFactura}] e
                 INNER JOIN [{$tablaRenglon}] d ON e.fact_num = d.fact_num
                 WHERE YEAR(e.fec_emis) = :year
-                  AND e.anulada = 0
-                  AND d.co_art IN ({$placeholders})
+                AND e.anulada = 0
+                AND d.co_art IN ({$placeholders})
                 GROUP BY d.co_art, MONTH(e.fec_emis)
+                ORDER BY d.co_art, mes
             ", $params);
 
-            // Armamos un array donde la llave es explícitamente un STRING asegurado
+            // 3. Inicializamos como un ARRAY nativo para evitar el NOTICE multidimensional
             $resultArray = [];
             foreach ($codigos as $c) {
-                $resultArray[(string) trim($c)] = array_fill_keys(range(1, 12), 0.0);
+                $resultArray[trim($c)] = array_fill_keys(range(1, 12), 0.0);
             }
 
+            // Asignar los valores sin conflicto de referencias de Laravel
             foreach ($rows as $row) {
-                $codigoLimpio = (string) trim($row->codigo);
+                $codigoLimpio = trim($row->codigo);
                 if (isset($resultArray[$codigoLimpio])) {
                     $resultArray[$codigoLimpio][(int) $row->mes] = (float) $row->unidades;
                 }
             }
 
+            // 4. Retornamos la Colección de Laravel al final
             return collect($resultArray);
-        }, collect());
-    }
 
-    /**
-     * Obtiene todos los artículos con sus totales de ventas y meses activos para un año específico.
-     * Diseñado estrictamente para alimentar RendimientoService.
-     */
-    public function getRendimientoGlobal(int $year): Collection
-    {
-        return $this->safe(function () use ($year) {
-            $artTable     = $this->profitTable('articulo');
-            $catTable     = $this->profitTable('categoria_articulo');
-            $facturaTable = $this->profitTable('factura_enc');
-            $rengFacTable = $this->profitTable('factura_det');
-
-            $rows = $this->con()->select("
-                SELECT
-                    LTRIM(RTRIM(a.CO_ART)) AS codigo,
-                    LTRIM(RTRIM(a.ART_DES)) AS descripcion,
-                    COALESCE(c.CAT_DES, '') AS categoria,
-                    COALESCE(v.total_unidades, 0) AS total_unidades,
-                    COALESCE(v.meses_activo, 0) AS meses_activo
-                FROM [{$artTable}] a
-                LEFT JOIN [{$catTable}] c ON c.CO_CAT = a.CO_CAT
-                LEFT JOIN (
-                    SELECT
-                        d.co_art,
-                        SUM(d.total_art) AS total_unidades,
-                        COUNT(DISTINCT MONTH(e.fec_emis)) AS meses_activo
-                    FROM [{$facturaTable}] e
-                    INNER JOIN [{$rengFacTable}] d ON d.fact_num = e.fact_num
-                    WHERE YEAR(e.fec_emis) = :year
-                      AND e.anulada = 0
-                    GROUP BY d.co_art
-                ) v ON v.co_art = a.CO_ART
-                -- Opcional: Filtrar solo artículos con movimiento o activos
-                -- WHERE a.ANULADO = 0
-                ORDER BY v.total_unidades DESC
-            ", ['year' => $year]);
-
-            return collect($rows)->map(fn ($r) => [
-                'codigo'         => (string) $r->codigo,
-                'descripcion'    => (string) $r->descripcion,
-                'categoria'      => (string) $r->categoria,
-                'total_unidades' => (float) $r->total_unidades,
-                'meses_activo'   => (int) $r->meses_activo,
-            ]);
         }, collect());
     }
 

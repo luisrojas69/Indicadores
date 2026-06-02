@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
+use App\Support\CacheHelper;
 
 /**
  * InventarioController
@@ -43,23 +44,26 @@ class InventarioController extends Controller
         $mesDesde = now()->startOfMonth()->toDateString();
 
         // KPIs rápidos para las cards del hub — todos desde caché
-        $stockData = Cache::remember(
+        $stockArray = CacheHelper::rememberArray(
             'inventario:stock_critico',
             config('cache_ttl.stock_critico', 120),
             fn () => $this->erp->getStockCritico()
         );
+        $stockData = collect($stockArray);
 
-        $salidasData = Cache::remember(
+        $salidasArray = CacheHelper::rememberArray(
             "inventario:salidas:{$mesDesde}:{$hoy}",
             config('cache_ttl.salidas_no_comerciales', 600),
             fn () => $this->erp->getSalidasNoComerciales($mesDesde, $hoy)
         );
+        $salidasData = collect($salidasArray);
 
-        $entradasData = Cache::remember(
+        $entradasArray = CacheHelper::rememberArray(
             "inventario:entradas:{$mesDesde}:{$hoy}",
             config('cache_ttl.entradas_vs_compras', 600),
             fn () => $this->erp->getEntradasVsCompras($mesDesde, $hoy)
         );
+        $entradasData = collect($entradasArray);
 
         $stockEnriquecido    = $this->auditoria->enriquecerStockCritico($stockData);
         $nivelesStock        = $this->auditoria->conteoStockNiveles($stockEnriquecido);
@@ -90,11 +94,12 @@ class InventarioController extends Controller
         $filtroNivel = $request->input('nivel', 'todos');
         $search      = $request->input('search', '');
 
-        $raw = Cache::remember(
+        $rawArray = CacheHelper::rememberArray(
             'inventario:stock_critico',
             config('cache_ttl.stock_critico', 120),
             fn () => $this->erp->getStockCritico()
         );
+        $raw = collect($rawArray);
 
         $stock   = $this->auditoria->enriquecerStockCritico($raw);
         $niveles = $this->auditoria->conteoStockNiveles($stock);
@@ -146,11 +151,12 @@ class InventarioController extends Controller
         $filtroAlerta = $request->input('alerta', 'todos');
         $search       = $request->input('search', '');
 
-        $raw = Cache::remember(
+        $rawArray = CacheHelper::rememberArray(
             "inventario:entradas:{$from}:{$to}",
             config('cache_ttl.entradas_vs_compras', 600),
             fn () => $this->erp->getEntradasVsCompras($from, $to)
         );
+        $raw = collect($rawArray);
 
         $entradas  = $this->auditoria->enriquecerEntradas($raw);
         $conteo    = $this->auditoria->conteoEntradas($entradas);
@@ -204,11 +210,12 @@ class InventarioController extends Controller
         $filtroTipo  = $request->input('tipo', 'todos');
         $search      = $request->input('search', '');
 
-        $raw = Cache::remember(
+        $rawArray = CacheHelper::rememberArray(
             "inventario:salidas:{$from}:{$to}",
             config('cache_ttl.salidas_no_comerciales', 600),
             fn () => $this->erp->getSalidasNoComerciales($from, $to)
         );
+        $raw = collect($rawArray);
 
         $salidas   = $this->auditoria->clasificarSalidas($raw);
         $ranking   = $this->auditoria->rankingArticulosSalidas($salidas);

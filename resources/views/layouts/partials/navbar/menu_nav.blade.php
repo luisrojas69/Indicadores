@@ -151,12 +151,6 @@
         <i class="fa fa-bars text-primary"></i>
     </button>
 
-    <form class="global-search-form d-none d-sm-inline-block form-inline mr-auto my-2 my-md-0 mw-100 navbar-search">
-        <i class="fas fa-search global-search-icon"></i>
-        <input type="text" class="global-search-input" placeholder="Buscar pacientes, equipos, órdenes..." aria-label="Search">
-        <span class="search-shortcut d-none d-lg-block">Ctrl+K</span>
-    </form>
-
     <ul class="navbar-nav ml-auto align-items-center">
 
         <li class="nav-item dropdown no-arrow d-sm-none">

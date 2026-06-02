@@ -1,8 +1,16 @@
+{{--
+    Gestionar Roles y Permisos para Usuarios en Laravel con Spatie
+--}}
 @extends('layouts.app')
-
 @section('title-page', 'Administración de Permisos')
 
-@section('styles')
+@section('breadcrumb')
+    <a href="{{ route('admin.users.index') }}" style="color:var(--text-muted);text-decoration:none;">Usuarios</a>
+    <span style="color:#cbd5e1;margin:0 4px;">/</span>
+    <span class="current">Administración de Permisos</span>
+@endsection
+
+@push('styles')
 <style>
     /* ========================================
        VARIABLES GLOBALES - TEMA MORADO
@@ -404,12 +412,6 @@
         margin-right: 12px;
     }
 
-    .modal-header-custom .close {
-        color: white;
-        opacity: 0.9;
-        text-shadow: none;
-    }
-
     .modal-body-custom {
         padding: 30px 25px;
         background: #fafbfc;
@@ -529,55 +531,35 @@
             font-size: 28px;
         }
     }
+
+    .perm-pill-more { background: rgba(111, 66, 193, 0.1); color: var(--purple-primary); border-color: rgba(111, 66, 193, 0.2); }
+
+
 </style>
-@endsection
+@endpush
 
 @section('content')
-<div class="container-fluid">
-    <!-- HEADER PRINCIPAL -->
-    <div class="page-header-master">
-        <div class="header-content">
-            <div class="d-flex justify-content-between align-items-start flex-wrap">
-                <div class="d-flex align-items-center mb-2 mb-md-0">
-                    <div class="header-icon mr-3">
-                        <i class="fas fa-key"></i>
-                    </div>
-                    <div class="header-title">
-                        <h1>{{ __('Diccionario de Permisos') }}</h1>
-                        <p class="header-subtitle mb-0">
-                            <i class="fas fa-shield-alt mr-2"></i>
-                            Define las acciones específicas que los roles podrán ejecutar en el sistema
-                        </p>
-                    </div>
-                </div>
-                <div>
-                    @can('seguridad.permisos.crear')
-                        <button class="btn btn-create-permission" data-toggle="modal" data-target="#modalPermiso">
-                            <i class="fas fa-plus mr-2"></i>Crear Permiso
-                        </button>
-                    @endcan
-                </div>
-            </div>
+<div class="container-fluid pb-5">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+            <h1 class="font-display mb-1" style="font-size:22px;font-weight:800;">
+                {{ __('Diccionario de Permisos') }}
+            </h1>
+            <p class="mb-0" style="font-size:13px;color:var(--text-muted);">
+                <i class="fas fa-shield-alt me-2"></i>
+                Define las acciones específicas que los roles podrán ejecutar en el sistema
+            </p>
+        </div>
+
+        <div class="d-flex gap-2 align-items-center">
+            @can('seguridad.permisos.crear')
+            <button class="btn btn-sm btn-primary" style="border-radius:9px;font-size:12.5px;" data-bs-toggle="modal" data-bs-target="#modalPermiso">
+                <i class="fas fa-plus me-1"></i>Crear Nuevo Permiso
+            </button>
+            @endcan
         </div>
     </div>
 
-    <!-- ALERTAS -->
-    @if(session('success'))
-        <div class="alert alert-success alert-enhanced alert-dismissible fade show" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-check-circle fa-2x mr-3"></i>
-                <div>
-                    <strong>¡Operación Exitosa!</strong><br>
-                    {{ session('success') }}
-                </div>
-            </div>
-            <button type="button" class="close" data-dismiss="alert">
-                <span>&times;</span>
-            </button>
-        </div>
-    @endif
-
-    <!-- KPIs -->
     <div class="row mb-4">
         <div class="col-xl-4 col-md-6 mb-4">
             <div class="card kpi-card-purple kpi-gradient-purple">
@@ -586,7 +568,7 @@
                         <i class="fas fa-unlock-alt"></i>
                     </div>
                     <div class="kpi-label">
-                        <i class="fas fa-list mr-1"></i>Total de Permisos
+                        <i class="fas fa-list me-1"></i>Total de Permisos
                     </div>
                     <div class="kpi-value">{{ $stats['total_permisos'] ?? 0 }}</div>
                     <div class="kpi-meta">Registrados en el sistema</div>
@@ -601,7 +583,7 @@
                         <i class="fas fa-cubes"></i>
                     </div>
                     <div class="kpi-label">
-                        <i class="fas fa-folder mr-1"></i>Módulos Registrados
+                        <i class="fas fa-folder me-1"></i>Módulos Registrados
                     </div>
                     <div class="kpi-value">{{ $stats['total_modulos'] ?? 0 }}</div>
                     <div class="kpi-meta">Grupos de permisos</div>
@@ -616,7 +598,7 @@
                         <i class="fas fa-chart-line"></i>
                     </div>
                     <div class="kpi-label">
-                        <i class="fas fa-clock mr-1"></i>Nuevos (Últimos 7 días)
+                        <i class="fas fa-clock me-1"></i>Nuevos (Últimos 7 días)
                     </div>
                     <div class="kpi-value">{{ $stats['recientes'] ?? 0 }}</div>
                     <div class="kpi-meta">Creados recientemente</div>
@@ -625,7 +607,6 @@
         </div>
     </div>
 
-    <!-- GRID DE MÓDULOS -->
     <div class="row">
         @forelse ($groupedPermissions as $module => $perms)
             <div class="col-xl-4 col-md-6 mb-4">
@@ -639,7 +620,11 @@
                     </div>
                     <div class="module-body">
                         <ul class="permissions-list">
-                            @foreach($perms as $p)
+
+
+
+
+                            @foreach($perms->take(6) as $p)
                                 <li class="permission-item">
                                     <div class="permission-name-wrapper">
                                         <div class="permission-icon">
@@ -673,6 +658,11 @@
                                     </div>
                                 </li>
                             @endforeach
+                            <li class="permission-item">
+                            @if($perms->count() > 6)
+                                <span class="module-count-badge">+ {{ $perms->count() - 6 }} más...</span>
+                            @endif
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -689,8 +679,8 @@
                         Los permisos definen las acciones que pueden realizar los usuarios.
                     </p>
                     @can('seguridad.permisos.crear')
-                        <button class="btn btn-create-permission" data-toggle="modal" data-target="#modalPermiso">
-                            <i class="fas fa-plus mr-2"></i>Crear Primer Permiso
+                        <button class="btn btn-create-permission" data-bs-toggle="modal" data-bs-target="#modalPermiso">
+                            <i class="fas fa-plus me-2"></i>Crear Primer Permiso
                         </button>
                     @endcan
                 </div>
@@ -699,7 +689,6 @@
     </div>
 </div>
 
-<!-- MODAL DE CREACIÓN/EDICIÓN -->
 <div class="modal fade" id="modalPermiso" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <form id="formPermiso"
@@ -714,9 +703,7 @@
                     <i class="fas fa-key"></i>
                     Nuevo Permiso
                 </h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body modal-body-custom">
@@ -761,14 +748,14 @@
             <div class="modal-footer modal-footer-custom">
                 <button type="button"
                         class="btn btn-modal-action btn-modal-cancel"
-                        data-dismiss="modal">
-                    <i class="fas fa-times mr-2"></i>Cancelar
+                        data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
                 </button>
                 @can('seguridad.permisos.crear')
                     <button type="submit"
                             class="btn btn-modal-action btn-modal-submit"
                             id="btnSave">
-                        <i class="fas fa-save mr-2"></i>Guardar Permiso
+                        <i class="fas fa-save me-2"></i>Guardar Permiso
                     </button>
                 @endcan
             </div>
@@ -787,26 +774,29 @@ $(document).ready(function() {
         let name = $(this).data('name');
         let module = $(this).data('module');
 
-        $('#modalTitle').html('<i class="fas fa-edit mr-2"></i> Editar Permiso');
+        $('#modalTitle').html('<i class="fas fa-edit me-2"></i> Editar Permiso');
         $('#formPermiso').attr('action', `/admin/permisos/${id}`);
         $('#methodField').html('@method("PUT")');
 
         $('#inputName').val(name);
         $('#inputModule').val(module);
 
-        $('#btnSave').html('<i class="fas fa-sync-alt mr-2"></i> Actualizar Permiso');
+        $('#btnSave').html('<i class="fas fa-sync-alt me-2"></i> Actualizar Permiso');
 
-        $('#modalPermiso').modal('show');
+        // Disparo seguro compatible con BS5 API Nativa
+        let modalEl = document.getElementById('modalPermiso');
+        let modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
     });
 
     // RESETEAR MODAL AL CERRAR
     $('#modalPermiso').on('hidden.bs.modal', function () {
-        $('#modalTitle').html('<i class="fas fa-key mr-2"></i> Nuevo Permiso');
+        $('#modalTitle').html('<i class="fas fa-key me-2"></i> Nuevo Permiso');
         $('#formPermiso').attr('action', "{{ route('admin.permissions.store') }}");
         $('#methodField').html('');
 
         $('#inputName, #inputModule').val('');
-        $('#btnSave').html('<i class="fas fa-save mr-2"></i> Guardar Permiso');
+        $('#btnSave').html('<i class="fas fa-save me-2"></i> Guardar Permiso');
     });
 
     // ELIMINAR CON CONFIRMACIÓN
@@ -822,8 +812,8 @@ $(document).ready(function() {
             showCancelButton: true,
             confirmButtonColor: '#e74a3b',
             cancelButtonColor: '#858796',
-            confirmButtonText: '<i class="fas fa-trash mr-2"></i>Sí, eliminar',
-            cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancelar',
+            confirmButtonText: '<i class="fas fa-trash me-2"></i>Sí, eliminar',
+            cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {

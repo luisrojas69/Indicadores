@@ -5,7 +5,7 @@
       $margenes, $margenesFiltradas, $semaforos, $chartDistribucion,
       $margenConfig, $costField, $excluirIva, $filtroSemaforo, $from, $to
 --}}
-
+@inject('margenService', 'App\Services\Financiero\MargenService')
 @extends('layouts.app')
 
 @section('title', 'Márgenes de Rentabilidad')
@@ -120,10 +120,19 @@
                 &nbsp;·&nbsp;
                 <span class="sem-badge sem-negativo" style="font-size: 10px;">IVA excluido</span>
             @endif
+
         </p>
     </div>
 
     <div class="d-flex align-items-center gap-2 flex-wrap">
+
+
+        @can('financiero.config.costo.editar')
+        <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 data-bs-toggle="modal" data-bs-target="#modalConfigCosto">
+            <i class="fas fa-cog"></i> Actualizar Costos
+        </button>
+        @endcan
+
         {{-- Enlace al bono --}}
         @can('financiero.reporte.bonos')
         <a href="{{ route('financiero.bonos', ['from' => $from, 'to' => $to]) }}"
@@ -439,7 +448,7 @@
         </table>
     </div>
 </div>
-
+@include('financiero._partials.config_costo_modal')
 @endsection
 
 @push('scripts')

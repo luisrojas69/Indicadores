@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 use Illuminate\View\View;
+use App\Support\CacheHelper;
 
 /**
  * FinancieroController
@@ -59,11 +60,12 @@ class FinancieroController extends Controller
         // ── Datos del ERP (con caché) ─────────────────────────────────────
         $cacheKey = "financiero:margenes:{$from}:{$to}:{$costField}";
 
-        $rawMargenes = Cache::remember(
+        $rawMargenesArray = CacheHelper::rememberArray(
             $cacheKey,
             config('cache_ttl.margenes', 600),
             fn () => $this->erp->getMargenesPorArticulo($from, $to, $costField)
         );
+        $rawMargenes = collect($rawMargenesArray); // ← Collection DESPUÉS de caché
 
         // ── Enriquecimiento (IVA + semáforo) — no se cachea, depende de parámetros de UI ──
         $margenes = $this->margenService->enriquecerMargenes($rawMargenes, $excluirIva);
@@ -115,13 +117,14 @@ class FinancieroController extends Controller
         // Datos del ERP
         $cacheKey = "financiero:margenes:{$from}:{$to}:{$costField}";
 
-        $rawMargenes = Cache::remember(
+        $rawMargenesArray = CacheHelper::rememberArray(
             $cacheKey,
             config('cache_ttl.margenes', 600),
             fn () => $this->erp->getMargenesPorArticulo($from, $to, $costField)
         );
+        $rawMargenes = collect($rawMargenesArray);
 
-        $resumenErp = Cache::remember(
+        $resumenErp = CacheHelper::rememberAssoc(  // ← assoc porque es array asociativo
             "financiero:resumen:{$from}:{$to}:{$costField}",
             config('cache_ttl.margenes', 600),
             fn () => $this->erp->getResumenFinanciero($from, $to, $costField)
@@ -180,6 +183,7 @@ class FinancieroController extends Controller
 
         // Limpiar caché de márgenes para forzar recalculo con el nuevo campo
         Cache::flush(); // En producción usar tags: Cache::tags('financiero')->flush()
+        //CacheHelper::forgetByPrefix("financiero:{$from}:{$to}");
 
         return back()->with('success', "Campo de costo cambiado a: {$field}");
     }

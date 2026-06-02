@@ -1,21 +1,11 @@
-{{--
-    inventario/reporte.blade.php
-    Reporte consolidado de inventario — vista previa antes de exportar.
-    Variables: $resumen, $stock, $salidas, $entradas, $from, $to, $stats, $users
---}}
-@extends('layouts.app')
+@extends('layouts.app2')
+
 @section('title-page', 'Gestión de Usuarios y Roles')
 
-@section('breadcrumb')
-    <a href="{{ route('admin.users.index') }}" style="color:var(--text-muted);text-decoration:none;">Usuarios</a>
-    <span style="color:#cbd5e1;margin:0 4px;">/</span>
-    <span class="current">Usuarios</span>
-@endsection
-
-@push('styles')
+@section('styles')
 <style>
     /* ========================================
-       VARIABLES GLOBALES Y CONFIGURACIÓN
+       VARIABLES GLOBALES
     ======================================== */
     :root {
         --primary: #4e73df;
@@ -550,48 +540,66 @@
         }
     }
 </style>
-@endpush
+@endsection
 
 @section('content')
-
-{{-- ── Header ────────────────────────────────────────────────────────── --}}
-<div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
-    <div>
-        <h1 class="font-display mb-1" style="font-size:22px;font-weight:800;">
-            Gestión de Accesos y Roles
-        </h1>
-        <p class="mb-0" style="font-size:13px;color:var(--text-muted);">
-           Administra los permisos y niveles de acceso del personal
-        </p>
+<div class="container-fluid">
+    <!-- HEADER PRINCIPAL -->
+    <div class="page-header-admin">
+        <div class="header-content">
+            <div class="d-flex justify-content-between align-items-start flex-wrap">
+                <div class="d-flex align-items-center mb-2 mb-md-0">
+                    <div class="header-icon-admin mr-3">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <div class="header-title">
+                        <h1>Gestión de Accesos y Roles</h1>
+                        <p class="header-subtitle mb-0">
+                            <i class="fas fa-shield-alt mr-2"></i>Administra los permisos y niveles de acceso del personal
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <a href="{{ route('admin.roles.index') }}" class="btn btn-configure-roles">
+                        <i class="fas fa-shield-alt mr-2"></i>Configurar Roles
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="d-flex gap-2 align-items-center">
-        @can('seguridad.roles.ver')
-        <a href="{{ route('admin.roles.index') }}"
-           class="btn btn-sm btn-success d-flex align-items-center gap-2"
-           style="border-radius:9px;font-size:12.5px;">
-            <i class="fas fa-shield-alt me-2"></i>Configurar Roles
-        </a>
-        @endcan
-    </div>
-</div>
+    <!-- ALERTAS MEJORADAS -->
+    @if (session('success'))
+        <div class="alert alert-success alert-enhanced alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle fa-2x mr-3"></i>
+                <div>
+                    <strong>¡Operación Exitosa!</strong><br>
+                    {{ session('success') }}
+                </div>
+            </div>
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    @endif
 
-{{-- ════════════════════════════════════════════════════════════════ --}}
-{{-- BLOQUE 1 — Administra los permisos y Usuarios                    --}}
-{{-- ════════════════════════════════════════════════════════════════ --}}
     @if (session('error'))
         <div class="alert alert-danger alert-enhanced alert-dismissible fade show" role="alert">
             <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                <i class="fas fa-exclamation-triangle fa-2x mr-3"></i>
                 <div>
                     <strong>¡Error!</strong><br>
                     {{ session('error') }}
                 </div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
         </div>
     @endif
 
+    <!-- KPIs ADMINISTRATIVOS -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card kpi-card-admin kpi-admin-purple">
@@ -642,6 +650,7 @@
         </div>
     </div>
 
+    <!-- TABLA DE USUARIOS -->
     <div class="users-table-card">
         <div class="users-table-header">
             <h6 class="users-table-title">
@@ -663,6 +672,7 @@
                     <tbody>
                         @foreach ($users as $user)
                         <tr>
+                            <!-- USUARIO CON AVATAR -->
                             <td>
                                 <div class="user-display">
                                     <div class="user-avatar {{ $user->roles->isEmpty() ? 'user-avatar-warning' : '' }}">
@@ -670,15 +680,16 @@
                                         <span class="user-avatar-status {{ $user->roles->isEmpty() ? 'user-avatar-status-warning' : '' }}"></span>
                                     </div>
                                     <div class="user-details">
-                                        <span class="user-name">{{ $user->fullname ?? '' }}</span>
+                                        <span class="user-name">{{ $user->name }} {{ $user->last_name ?? '' }}</span>
                                         <span class="user-email">
-                                            <i class="fas fa-envelope me-1"></i>
+                                            <i class="fas fa-envelope"></i>
                                             {{ $user->email }}
                                         </span>
                                     </div>
                                 </div>
                             </td>
 
+                            <!-- ROLES -->
                             <td>
                                 <div class="roles-container">
                                     @forelse ($user->roles as $role)
@@ -691,18 +702,19 @@
                                             }
                                         @endphp
                                         <span class="role-badge {{ $badgeClass }}">
-                                            <i class="fas fa-tag me-1"></i>
+                                            <i class="fas fa-tag"></i>
                                             {{ strtoupper($role->name) }}
                                         </span>
                                     @empty
                                         <span class="role-badge role-badge-warning">
-                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            <i class="fas fa-exclamation-circle"></i>
                                             Sin Rol Asignado
                                         </span>
                                     @endforelse
                                 </div>
                             </td>
 
+                            <!-- REGISTRO -->
                             <td>
                                 <div class="registration-info">
                                     <span class="registration-date">
@@ -714,35 +726,35 @@
                                 </div>
                             </td>
 
+                            <!-- ACCIONES -->
                             <td class="actions-cell">
                                 <div class="dropdown">
-                                    <button class="btn-actions-admin" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="btn-actions-admin" type="button" data-toggle="dropdown">
                                         <i class="fas fa-ellipsis-v text-gray-400"></i>
                                     </button>
-
-                                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-admin">
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-admin">
                                         <div class="dropdown-header-admin">Configuración</div>
 
                                         <a class="dropdown-item-admin" href="{{ route('admin.users.edit-roles', $user) }}">
-                                            <i class="fas fa-user-shield text-purple me-2"></i>
+                                            <i class="fas fa-user-shield text-purple"></i>
                                             Gestionar Roles
                                         </a>
 
                                         <a class="dropdown-item-admin" href="{{ route('admin.users.edit-roles', $user) }}">
-                                            <i class="fas fa-edit text-info me-2"></i>
+                                            <i class="fas fa-edit text-info"></i>
                                             Editar Perfil
                                         </a>
 
-                                        <hr class="dropdown-divider-admin my-1">
+                                        <div class="dropdown-divider-admin"></div>
 
                                         <form method="POST"
-                                            action="{{ route('admin.users.update-roles', $user) }}"
-                                            class="form-deactivate"
-                                            data-user-name="{{ $user->name }} {{ $user->last_name ?? '' }}">
+                                              action="{{ route('admin.users.update-roles', $user) }}"
+                                              class="form-deactivate"
+                                              data-user-name="{{ $user->name }} {{ $user->last_name ?? '' }}">
                                             @csrf
                                             @method('PUT')
-                                            <button type="submit" class="dropdown-item-admin dropdown-item-danger w-100 text-start">
-                                                <i class="fas fa-user-slash me-2"></i>
+                                            <button type="submit" class="dropdown-item-admin dropdown-item-danger">
+                                                <i class="fas fa-user-slash"></i>
                                                 Desactivar Acceso
                                             </button>
                                         </form>
@@ -765,7 +777,7 @@ $(document).ready(function() {
     // Inicializar DataTable
     $('#dataTableUsers').DataTable({
         language: {
-            url: "/js/lang/Spanish.json"
+            url: "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
         },
         order: [[ 0, "asc" ]],
         pageLength: 15,
@@ -778,7 +790,7 @@ $(document).ready(function() {
              '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
     });
 
-    // Confirmación para desactivar acceso con SweetAlert2
+    // Confirmación para desactivar acceso
     $('.form-deactivate').on('submit', function(e) {
         e.preventDefault();
         const form = this;
@@ -792,8 +804,8 @@ $(document).ready(function() {
             showCancelButton: true,
             confirmButtonColor: '#e74a3b',
             cancelButtonColor: '#858796',
-            confirmButtonText: '<i class="fas fa-user-slash me-2"></i>Sí, Desactivar',
-            cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
+            confirmButtonText: '<i class="fas fa-user-slash mr-2"></i>Sí, Desactivar',
+            cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancelar',
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {

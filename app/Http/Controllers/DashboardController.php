@@ -5,17 +5,25 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Erp\Contracts\ErpConnectionInterface;
+use App\Support\CacheHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 /**
- * DashboardController
+ * DashboardController — VERSIÓN CORREGIDA (Fix #1: caché)
  *
- * Orquesta todos los datos del dashboard gerencial.
- * No contiene lógica de negocio ni queries — delega todo a ErpConnectionInterface.
- * Solo es responsable de: recibir fechas, gestionar caché y pasar datos a la vista.
+ * CAMBIO CLAVE respecto a la versión anterior:
+ *   ❌ ANTES: Cache::remember(..., fn() => $this->erp->getTopProductos(...))
+ *            → guardaba Collection serializada → __PHP_Incomplete_Class en 2da request
+ *
+ *   ✅ AHORA: CacheHelper::rememberArray(..., fn() => $this->erp->getTopProductos(...))
+ *            → guarda JSON plano → collect($array) después de leer caché
+ *
+ * PATRÓN A SEGUIR EN TODOS LOS CONTROLLERS:
+ *   1. Usar CacheHelper::rememberArray() para listas  → retorna array
+ *   2. Usar CacheHelper::rememberAssoc() para KPIs    → retorna array asociativo
+ *   3. Convertir a Collection con collect() DESPUÉS de leer, nunca antes
  */
 class DashboardController extends Controller
 {
@@ -23,73 +31,65 @@ class DashboardController extends Controller
         private readonly ErpConnectionInterface $erp
     ) {}
 
-    /**
-     * Vista principal del dashboard gerencial.
-     */
     public function index(Request $request): View
     {
         // ── 1. Resolución del rango de fechas ─────────────────────────────
-        // Por defecto: mes en curso. El selector global del topbar envía ?from= y ?to=
         $dateFrom = $request->input('from', now()->startOfMonth()->toDateString());
         $dateTo   = $request->input('to',   now()->toDateString());
 
-        // Validación básica de fechas — si llegan mal formateadas, usamos el mes actual
         try {
             $from = Carbon::parse($dateFrom)->toDateString();
             $to   = Carbon::parse($dateTo)->toDateString();
-            if ($from > $to) {
-                $from = now()->startOfMonth()->toDateString();
-                $to   = now()->toDateString();
-            }
+            if ($from > $to) throw new \RuntimeException();
         } catch (\Throwable) {
             $from = now()->startOfMonth()->toDateString();
             $to   = now()->toDateString();
         }
 
-        // ── 2. Clave de caché por período (distintos rangos = distintas keys) ──
-        $cachePrefix = "dashboard:{$from}:{$to}";
+        $prefix = "dashboard:{$from}:{$to}";
+        $topN   = config('app_client.business.dashboard_top_n', 10);
 
-        // ── 3. KPIs principales ───────────────────────────────────────────
-        $kpis = Cache::remember(
-            "{$cachePrefix}:kpis",
+        // ── 2. KPIs principales ───────────────────────────────────────────
+        // rememberAssoc → retorna array asociativo, nunca Collection
+        $kpis = CacheHelper::rememberAssoc(
+            "{$prefix}:kpis",
             config('cache_ttl.productos_mas_vendidos', 300),
             fn () => $this->erp->getDashboardKpis($from, $to)
         );
 
-        // ── 4. Cuentas por Cobrar ─────────────────────────────────────────
-        $cxc = Cache::remember(
-            "{$cachePrefix}:cxc",
+        // ── 3. CxC ────────────────────────────────────────────────────────
+        $cxc = CacheHelper::rememberAssoc(
+            "{$prefix}:cxc",
             config('cache_ttl.cuentas_por_cobrar', 900),
             fn () => $this->erp->getCuentasPorCobrarSummary($from, $to)
         );
 
-        // ── 5. Top productos ──────────────────────────────────────────────
-        $topN = config('app_client.business.dashboard_top_n', 10);
-
-        $topProductos = Cache::remember(
-            "{$cachePrefix}:top_productos:{$topN}",
+        // ── 4. Top Productos ──────────────────────────────────────────────
+        // rememberArray → retorna array plano
+        // collect() se llama AQUÍ, después de leer caché — nunca dentro del callback
+        $topProductosArray = CacheHelper::rememberArray(
+            "{$prefix}:top_productos:{$topN}",
             config('cache_ttl.productos_mas_vendidos', 300),
             fn () => $this->erp->getTopProductos($from, $to, $topN)
         );
+        $topProductos = collect($topProductosArray); // ← conversión DESPUÉS de caché
 
-        // ── 6. Ranking de vendedores ──────────────────────────────────────
-        $rankingVendedores = Cache::remember(
-            "{$cachePrefix}:ranking_vendedores",
+        // ── 5. Ranking Vendedores ─────────────────────────────────────────
+        $rankingArray = CacheHelper::rememberArray(
+            "{$prefix}:ranking_vendedores",
             config('cache_ttl.ranking_vendedores', 300),
             fn () => $this->erp->getRankingVendedores($from, $to)
         );
+        $rankingVendedores = collect($rankingArray); // ← conversión DESPUÉS de caché
 
-        // ── 7. Datos para el gráfico de barras (Chart.js) ─────────────────
-        // Preparamos las series aquí para no poner lógica en Blade
-        $chartLabels    = $topProductos->pluck('descripcion')
+        // ── 6. Series para Chart.js ───────────────────────────────────────
+        $chartLabels   = $topProductos->pluck('descripcion')
                             ->map(fn ($d) => mb_strimwidth($d, 0, 28, '…'))
-                            ->values()
-                            ->toJson();
+                            ->values()->toJson();
+        $chartUnidades = $topProductos->pluck('unidades')->values()->toJson();
+        $chartMontos   = $topProductos->pluck('monto')->values()->toJson();
 
-        $chartUnidades  = $topProductos->pluck('unidades')->values()->toJson();
-        $chartMontos    = $topProductos->pluck('monto')->values()->toJson();
-
-        // ── 8. Variación porcentual MoM para las KPI cards ────────────────
+        // ── 7. Variaciones ────────────────────────────────────────────────
         $varPct = 0.0;
         if (($kpis['monto_facturado_anterior'] ?? 0) > 0) {
             $varPct = round(
@@ -99,8 +99,6 @@ class DashboardController extends Controller
             );
         }
 
-        // ── 9. Calcular porcentaje implícito del CxC ──────────────────────
-        // % cobrado = cobranzas / monto facturado
         $pctCobranza = 0.0;
         if (($kpis['monto_facturado'] ?? 0) > 0) {
             $pctCobranza = round(
@@ -109,17 +107,9 @@ class DashboardController extends Controller
         }
 
         return view('dashboard.index', compact(
-            'kpis',
-            'cxc',
-            'topProductos',
-            'rankingVendedores',
-            'chartLabels',
-            'chartUnidades',
-            'chartMontos',
-            'varPct',
-            'pctCobranza',
-            'from',
-            'to',
+            'kpis', 'cxc', 'topProductos', 'rankingVendedores',
+            'chartLabels', 'chartUnidades', 'chartMontos',
+            'varPct', 'pctCobranza', 'from', 'to',
         ));
     }
 }

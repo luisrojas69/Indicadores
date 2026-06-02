@@ -23,7 +23,7 @@ return [
     */
     'name'         => env('CLIENT_NAME',         'JellCelulars'),
     'short_name'   => env('CLIENT_SHORT_NAME',   'JellCell'),
-    'rif'          => env('CLIENT_RIF',           'J-XXXXXXXXX-X'),
+    'rif'          => env('CLIENT_RIF',           'J-12345678-0'),
     'logo'         => env('CLIENT_LOGO',          'images/logo.png'),      // relativo a public/
     'logo_dark'    => env('CLIENT_LOGO_DARK',     'images/logo-dark.png'), // variante para sidebar oscuro
     'favicon'      => env('CLIENT_FAVICON',       'favicon.ico'),
@@ -57,6 +57,7 @@ return [
         'timezone'         => env('CLIENT_TIMEZONE',          'America/Caracas'),
         'language'         => env('CLIENT_LANGUAGE',          'es'),
         'currency_symbol'  => env('CLIENT_CURRENCY_SYMBOL',   '$'),
+        'locale_symbol'    => env('CLIENT_LOCALE_SYMBOL',     '$'),
         'currency_code'    => env('CLIENT_CURRENCY_CODE',     'USD'),
         'decimal_places'   => (int) env('CLIENT_DECIMAL_PLACES', 2),
         'decimal_sep'      => env('CLIENT_DECIMAL_SEP',       ','),
@@ -78,7 +79,7 @@ return [
         'inventario' => (bool) env('MODULE_INVENTARIO',  true),
         'articulos'  => (bool) env('MODULE_ARTICULOS',   true),
         'vendedores' => (bool) env('MODULE_VENDEDORES',  true),
-        'tablet'     => (bool) env('MODULE_TABLET',      false), // Fase 5 — desactivado por defecto
+        'tablet'     => (bool) env('MODULE_TABLET',      true), // Fase 5 — desactivado por defecto
     ],
 
     /*
@@ -127,9 +128,9 @@ return [
     */
     'system' => [
         'name'        => env('SYSTEM_NAME',    'BI Bridge'),
-        'version'     => env('SYSTEM_VERSION', '1.0.0'),
-        'built_by'    => env('SYSTEM_BUILT_BY', 'Tu Empresa'),
-        'support_url' => env('SYSTEM_SUPPORT_URL', ''),
+        'version'     => env('SYSTEM_VERSION', '0.1.0-beta1'),
+        'built_by'    => env('SYSTEM_BUILT_BY', 'Ing. Luis Rojas'),
+        'support_url' => env('SYSTEM_SUPPORT_URL', 'https://github.com/luisrojas69/'),
     ],
 
 ];

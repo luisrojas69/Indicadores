@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-// Nota: Falta el controlador de Baja/Mortalidad (se agregará después)
+use App\Http\Controllers\ProfileController;
 
 // Auth routes (Asume el scaffolding de autenticación de Laravel)
 Auth::routes();
@@ -26,9 +26,9 @@ Route::middleware(['auth'])->group(function () {
         return response()->view('errors.403', [], 403);
     })->middleware('web'); // Apply the 'web' middleware
 
-    
+
     // CARGA DEL MÓDULO DE PRODUCCION
-    require __DIR__.'/produccion.php';   
+    require __DIR__.'/produccion.php';
 
      // CARGA DEL MÓDULO DE areas
     require __DIR__.'/areas.php';
@@ -59,7 +59,7 @@ Route::middleware(['auth'])->group(function () {
 
          // CARGA DEL MÓDULO DE pozo
     require __DIR__.'/sistemas.php';
-    
+
     // CARGA DEL MÓDULO DE PLUVIOMETRIA
     require __DIR__.'/pluviometria.php';
 
@@ -74,7 +74,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Rutas de Perfil/Configuración (ejemplo)
     Route::get('profile', function () { return view('profile'); })->name('profile');
-    Route::put('/profile', 'ProfileController@update')->name('profile.update');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('about', function () { return view('about'); })->name('about');
 
 });

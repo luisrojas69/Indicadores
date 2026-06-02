@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,13 @@ Route::get('/', function () {
 // ── Grupo principal: autenticado + ERP disponible ─────────────────────────
 Route::middleware(['auth', 'erp.connection'])->group(function () {
 
+    //Acerca de:
+    Route::get('about', function () { return view('about'); })->name('about');
+
+    // Rutas de Perfil/Configuración (ejemplo)
+    Route::get('profile', function () { return view('profile'); })->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
     // ── Dashboard Gerencial ───────────────────────────────────────────────
     Route::prefix('dashboard')->name('dashboard.')->group(function () {
 
@@ -55,8 +63,12 @@ Route::middleware(['auth', 'erp.connection'])->group(function () {
     });
 
     require __DIR__.'/financiero.php';
-     require __DIR__.'/inventario.php';
-     require __DIR__.'/articulos.php';
+    require __DIR__.'/inventario.php';
+    require __DIR__.'/articulos.php';
+    // CARGA DEL MÓDULO DE ADMINISTRACIÓN
+    require __DIR__.'/admin.php';
+    // CARGA DEL MÓDULO DE TABLET (FASE 5)
+    require __DIR__.'/tablet.php';
 
 
     // ── Módulo Financiero (Fase 2) ────────────────────────────────────────

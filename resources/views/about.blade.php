@@ -1,11 +1,17 @@
+{{--
+    Página informativa acerca de LR-Indicadores, su propósito, módulos, y el perfil del desarrollador.
+--}}
 @extends('layouts.app')
+@section('title-page', 'Acerca de '. config('app_client.system.name')   .' v'. config('app_client.system.version'))
 
-@section('title-page', 'Acerca de LR-Indicadores')
+@section('breadcrumb')
+    <span class="current">Acerca de <b>{{ config('app_client.system.name', 'ERP') }}</b> </span>
+@endsection
 
-@section('styles')
+@push('styles')
 <style>
     /* ========================================
-       VARIABLES GLOBALES - TEMA MORADO
+       VARIABLES GLOBALES - TEMA MORADO / CORPORATIVO
     ======================================== */
     :root {
         --purple-primary: #4e73df;
@@ -59,7 +65,6 @@
     /* ========================================
        TARJETAS DE INFORMACIÓN
     ======================================== */
-
     .about-card {
         background: white;
         border-radius: 15px;
@@ -67,7 +72,7 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.04);
         margin-bottom: 25px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
-        height: auto; /* Permite que el card crezca según su contenido */
+        height: auto;
     }
     .about-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
 
@@ -82,7 +87,13 @@
     /* ========================================
        MÓDULOS DEL SISTEMA
     ======================================== */
-    .module-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+    .module-grid {
+        display: grid;
+        /* Cambiamos auto-fit por auto-fill y aumentamos un poco el mínimo para que se vea más robusto */
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 15px;
+        width: 100%; /* Aseguramos que el contenedor use todo el ancho del card-body */
+    }
     .module-item {
         background: #f8f9fc; border: 1px solid #eaecf4; border-radius: 10px;
         padding: 15px; display: flex; align-items: flex-start; transition: all 0.2s;
@@ -102,9 +113,9 @@
     .dev-profile { text-align: center; padding: 10px; }
     .dev-avatar {
         width: 90px; height: 90px; border-radius: 50%;
-        background: linear-gradient(135deg, #2c3e50, #3498db); color: white;
+        background: linear-gradient(135deg, #2c3e50, #4e73df); color: white;
         display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800;
-        margin: 0 auto 15px; box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        margin: 0 auto 15px; box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
     }
     .dev-name { font-size: 18px; font-weight: 800; color: #2c3e50; margin-bottom: 2px; }
     .dev-role { font-size: 13px; color: var(--purple-primary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
@@ -124,29 +135,16 @@
     }
     .btn-github:hover { background: #1b1f23; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(36, 41, 46, 0.3); color: white; }
 </style>
-@endsection
+@endpush
 
 @section('content')
 <div class="container-fluid pb-5">
-    @if(session('success'))
-        <div class="alert alert-success alert-enhanced alert-dismissible fade show" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-check-circle fa-2x mr-3 text-success"></i>
-                <div>
-                    <strong>¡Operación Exitosa!</strong><br>
-                    {{ session('success') }}
-                </div>
-            </div>
-            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-        </div>
-    @endif
-
     <div class="page-header-master">
         <div class="logo-container">
-            <img src="{{ asset('img/favicon.png') }}" alt="LR-Indicadores Logo" style="width: 60px;">
+            <img src="{{ asset('img/favicon.png') }}" alt="{{ config('app_client.system.name') }} v{{ config('app_client.system.version') }}" style="width: 60px;">
         </div>
-        <h1 class="header-title">LR-Indicadores <span class="version-badge">v2.0 Enterprise</span></h1>
-        <p class="header-subtitle">Plataforma Tecnológica Integral desarrollada para JellCell C.A.</p>
+        <h1 class="header-title">{{ config('app_client.system.name') }}  <span class="version-badge">v{{ config('app_client.system.version') }} Enterprise</span></h1>
+        <p class="header-subtitle">Panel Gerencial de Control y Analítica de Datos Comercial y de Inventario</p>
     </div>
 
     <div class="row align-items-start">
@@ -158,53 +156,78 @@
                 </div>
                 <div class="card-body-pro" style="font-size: 15px; color: #5a5c69; line-height: 1.7;">
                     <p>
-                        <strong>LR-Indicadores</strong> no es un simple software, es el ecosistema digital diseñado exclusivamente para resolver los desafíos operativos y administrativos de <strong>JellCell</strong>.
+                        <strong>{{ config('app_client.system.name') }} v{{ config('app_client.system.version') }}</strong> es una solución de inteligencia empresarial y analítica visual de alto nivel, diseñada de manera exclusiva para abstraer y procesar la información neurálgica operativa y comercial de la organización.
                     </p>
                     <p>
-                        Su objetivo principal es centralizar la gestión de la información, permitiendo la trazabilidad en tiempo real de los procesos clave: desde la salud integral de nuestros trabajadores, pasando por la seguridad industrial, hasta el control meticuloso de la maquinaria y operaciones agrícolas.
+                        A diferencia de los paneles rígidos tradicionales, esta plataforma ofrece un ecosistema ágil y desacoplado que unifica el control gerencial. Permite auditar en tiempo real desde la facturación acumulada, el rendimiento individual de la fuerza de ventas, y la antigüedad de las cuentas por cobrar, hasta la fluctuación de los márgenes comerciales brutos y la rotación analítica de inventarios.
                     </p>
-                    <div class="alert alert-info border-0 shadow-sm mt-4 bg-light text-dark">
-                        <i class="fas fa-tractor text-primary mr-2"></i> <strong>Gestión Crítica de Cosecha:</strong> LR-Indicadores integra un control estricto de tareas post-quema y cosecha, monitoreando horómetros y controlando al personal directo y contratistas para optimizar la edad de la caña.
+
+
+                    <div class="panel-card-body py-3" bis_skin_checked="1">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3" bis_skin_checked="1">
+                            <div bis_skin_checked="1">
+                                <p class="mb-1" style="font-size:13px;font-weight:700;color:var(--text-primary);">
+                                    <i class="fas fa-link text-primary mr-2"></i>
+                                    Filosofía Core de Desacoplamiento:
+                                </p>
+                                <p class="mb-0" style="font-size:12px;color:var(--text-secondary);">
+                                    Toda la lógica de negocio se encuentra orquestada a través de interfaces rigurosas en Laravel. Esto asegura que la capa de visualización e informes gerenciales permanezca intacta e independiente del driver de base de datos o proveedor del ERP central.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="about-card">
                 <div class="card-header-pro">
-                    <i class="fas fa-layer-group"></i> Módulos y Alcance
+                    <i class="fas fa-layer-group"></i> Módulos y Alcance Gerencial
                 </div>
                 <div class="card-body-pro">
-                    <div class="module-grid">
+                    <!-- Reemplazamos module-grid por clases nativas de Bootstrap 5 -->
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
 
-                        <div class="module-item">
-                            <div class="module-icon"><i class="fas fa-user-md"></i></div>
-                            <div class="module-info">
-                                <h6>Modulo de CXP</h6>
-                                <p>Expedientes digitales, CXP, consultas y emisión de reportes.</p>
+                        <!-- Elemento 1 -->
+                        <div class="col">
+                            <div class="module-item h-100"> <!-- h-100 para que todos tengan la misma altura -->
+                                <div class="module-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                                <div class="module-info">
+                                    <h6>Módulo Cuentas por Cobrar (CxC)</h6>
+                                    <p>Análisis de saldos vencidos, conciliación implícita de cobros mensuales vs. montos facturados y proyección de cartera corriente.</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="module-item">
-                            <div class="module-icon"><i class="fas fa-hard-hat"></i></div>
-                            <div class="module-info">
-                                <h6>Modulo de CXC</h6>
-                                <p>Expedientes digitales, CXC, consultas y emisión de reportes.</p>
+                        <!-- Elemento 2 -->
+                        <div class="col">
+                            <div class="module-item h-100">
+                                <div class="module-icon"><i class="fas fa-chart-line"></i></div>
+                                <div class="module-info">
+                                    <h6>Módulo de Márgenes y Ventas</h6>
+                                    <p>Auditoría de rentabilidad bruta por artículo utilizando costos promedio unitarios reales, alertas automáticas por semáforos y cálculo dinámico de bonificaciones.</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="module-item">
-                            <div class="module-icon"><i class="fas fa-cogs"></i></div>
-                            <div class="module-info">
-                                <h6>Modulo de Inventario</h6>
-                                <p>Expedientes digitales, Inventario, consultas y emisión de reportes.</p>
+                        <!-- Elemento 3 -->
+                        <div class="col">
+                            <div class="module-item h-100">
+                                <div class="module-icon"><i class="fas fa-boxes"></i></div>
+                                <div class="module-info">
+                                    <h6>Módulo de Inventario Consolidado</h6>
+                                    <p>Trazabilidad física de almacenes, auditoría analítica de stock crítico/bajo, flujos de entradas y monitoreo selectivo de salidas no comerciales.</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="module-item" style="grid-column: 1 / -1;">
-                            <div class="module-icon"><i class="fas fa-shield-alt"></i></div>
-                            <div class="module-info">
-                                <h6>Control de Acceso Avanzado</h6>
-                                <p>Arquitectura de seguridad basada en Roles y Permisos granulares, garantizando que cada departamento opere con la información adecuada bajo estrictos estándares de confidencialidad.</p>
+                        <!-- Elemento de Ancho Completo (Control de Acceso) -->
+                        <div class="col-12 w-100">
+                            <div class="module-item">
+                                <div class="module-icon"><i class="fas fa-shield-alt"></i></div>
+                                <div class="module-info">
+                                    <h6>Seguridad y Capa de Datos Granular</h6>
+                                    <p>Implementación de seguridad perimetral controlada por roles y permisos dinámicos. Restringe accesos según perfiles de usuario, garantizando confidencialidad extrema en KPIs financieros, listados de artículos estratégicos y datos de clientes.</p>
+                                </div>
                             </div>
                         </div>
 
@@ -219,14 +242,14 @@
             <div class="about-card">
                 <div class="card-body-pro dev-profile">
                     <div class="dev-avatar">LR</div>
-                    <h4 class="dev-name">Ing. Luis Rojas</h4>
-                    <div class="dev-role">Full-Stack Lead Developer</div>
+                    <h4 class="dev-name">{{ config('app_client.system.built_by') }}</h4>
+                    <div class="dev-role">Senior Full-Stack & Systems Engineer</div>
 
                     <p class="text-muted small px-3 mb-4">
-                        Arquitecto de software encargado del diseño, desarrollo e implementación total de LR-Indicadores.
+                        Arquitecto de software senior encargado de la concepción de la arquitectura, diseño relacional, modelado de contratos de software, scripts automatizados e implementación punta a punta de LR-Indicadores.
                     </p>
 
-                    <a href="https://github.com/luisrojas69" target="_blank" class="btn-github">
+                    <a href="{{ config('app_client.system.support_url') }} " target="_blank" class="btn-github">
                         <i class="fab fa-github fa-lg mr-2"></i> Repositorio Oficial
                     </a>
                 </div>
@@ -234,27 +257,29 @@
 
             <div class="about-card">
                 <div class="card-header-pro">
-                    <i class="fas fa-code"></i> Motor Tecnológico
+                    <i class="fas fa-microchip"></i> Motor Tecnológico
                 </div>
                 <div class="card-body-pro pt-2">
-                    <p class="text-muted small mb-3">Construido utilizando estándares de la industria y herramientas de código abierto de alto rendimiento:</p>
+                    <p class="text-muted small mb-3">Construido utilizando estándares corporativos rígidos, herramientas robustas de código abierto y procesamiento nativo empresarial:</p>
 
                     <div class="tech-stack-container">
-                        <span class="tech-badge"><i class="fab fa-laravel text-danger"></i> Laravel 10.x</span>
-                        <span class="tech-badge"><i class="fab fa-php text-primary"></i> PHP 8.x</span>
-                        <span class="tech-badge"><i class="fas fa-database text-info"></i> MySQL</span>
-                        <span class="tech-badge"><i class="fab fa-bootstrap text-purple" style="color:#563d7c;"></i> Bootstrap 4 (SB Admin)</span>
-                        <span class="tech-badge"><i class="fab fa-js text-warning"></i> jQuery / Ajax</span>
-                        <span class="tech-badge"><i class="fas fa-lock text-success"></i> Spatie Permissions</span>
-                        <span class="tech-badge"><i class="fas fa-file-pdf text-danger"></i> Snappy PDF</span>
-                        <span class="tech-badge"><i class="fas fa-table text-secondary"></i> DataTables</span>
+                        <span class="tech-badge" title="Framework Backend Principal"><i class="fab fa-laravel text-danger"></i> Laravel 10.x</span>
+                        <span class="tech-badge" title="Lenguaje de Programación Servidor"><i class="fab fa-php text-primary"></i> PHP 8.2</span>
+                        <span class="tech-badge" title="Motor del ERP Corporativo"><i class="fas fa-database text-info"></i> SQL Server / Profit Plus</span>
+                        <span class="tech-badge" title="Motor de Reportes Analíticos Avanzados"><i class="fab fa-python text-success"></i> Python 3 (openpyxl)</span>
+                        <span class="tech-badge" title="Entorno de Despliegue e Infraestructura"><i class="fab fa-docker text-primary" style="color:#0db7ed;"></i> Docker Containers</span>
+                        <span class="tech-badge" title="Manejador de Base de Datos Local/Caché"><i class="fas fa-database text-secondary"></i> MySQL</span>
+                        <span class="tech-badge" title="Framework Frontend Visual"><i class="fab fa-bootstrap" style="color:#563d7c;"></i> Bootstrap 4 (SB Admin 2)</span>
+                        <span class="tech-badge" title="Capa de Interacción Dinámica Asíncrona"><i class="fab fa-js text-warning"></i> jQuery / Axios Ajax</span>
+                        <span class="tech-badge" title="Sistema de Autorización Granular"><i class="fas fa-lock text-success"></i> Spatie Permissions</span>
+                        <span class="tech-badge" title="Tablas Dinámicas del Lado del Cliente"><i class="fas fa-table text-dark"></i> DataTables JS</span>
                     </div>
                 </div>
             </div>
 
             <div class="text-center mt-4">
                 <p class="text-muted small font-weight-bold">
-                    &copy; {{ date('Y') }} LR Indicadores.<br>
+                    &copy; {{ date('Y') }} {{ config('app_client.system.name') }} v{{ config('app_client.system.version') }}.<br>
                     <span class="font-weight-normal">Todos los derechos reservados.</span>
                 </p>
             </div>

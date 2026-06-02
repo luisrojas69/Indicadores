@@ -1,8 +1,16 @@
+{{--
+    Gestionar Roles y Permisos para Usuarios en Laravel con Spatie
+--}}
 @extends('layouts.app')
-
 @section('title-page', 'Administración de Roles')
 
-@section('styles')
+@section('breadcrumb')
+    <a href="{{ route('admin.users.index') }}" style="color:var(--text-muted);text-decoration:none;">Usuarios</a>
+    <span style="color:#cbd5e1;margin:0 4px;">/</span>
+    <span class="current">Administración de Roles</span>
+@endsection
+
+@push('styles')
 <style>
     /* ========================================
        VARIABLES GLOBALES - TEMA MORADO
@@ -183,7 +191,6 @@
     .empty-state-title { font-size: 22px; font-weight: 700; color: #5a5c69; margin-bottom: 10px; }
     .empty-state-description { font-size: 14px; color: #858796; margin-bottom: 25px; }
 
-    /* Reutilizamos el modal de la vista anterior */
     .modal-custom { border-radius: 12px; border: none; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); }
     .modal-header-custom { background: linear-gradient(135deg, #6f42c1, #5a32a3); color: white; border: none; padding: 22px 25px; }
     .modal-title-custom { font-size: 18px; font-weight: 700; margin: 0; display: flex; align-items: center; }
@@ -196,75 +203,61 @@
     .btn-modal-cancel { background: #e3e6f0; color: #5a5c69; }
     .btn-modal-submit { background: linear-gradient(135deg, #6f42c1, #5a32a3); color: white; box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3); }
 </style>
-@endsection
+@endpush
 
 @section('content')
-<div class="container-fluid">
-    <div class="page-header-master">
-        <div class="header-content">
-            <div class="d-flex justify-content-between align-items-start flex-wrap">
-                <div class="d-flex align-items-center mb-2 mb-md-0">
-                    <div class="header-icon mr-3">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <div class="header-title">
-                        <h1>{{ __('Administración de Roles') }}</h1>
-                        <p class="header-subtitle">
-                            <i class="fas fa-project-diagram mr-2"></i>
-                            Gestiona los perfiles de acceso y agrupa los permisos del sistema
-                        </p>
-                    </div>
-                </div>
-                <div>
-                    @can('seguridad.roles.crear')
-                        <button class="btn btn-create-role" data-toggle="modal" data-target="#modalRol">
-                            <i class="fas fa-plus mr-2"></i>Crear Nuevo Rol
-                        </button>
-                    @endcan
-                </div>
-            </div>
+<div class="container-fluid pb-5">
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4">
+        <div>
+            <h1 class="font-display mb-1" style="font-size:22px;font-weight:800;">
+                {{ __('Administración de Roles') }}
+            </h1>
+            <p class="mb-0" style="font-size:13px;color:var(--text-muted);">
+               Gestiona los perfiles de acceso y agrupa los permisos del sistema
+            </p>
+        </div>
+
+        <div class="d-flex gap-2 align-items-center">
+            @can('seguridad.usuarios.ver')
+            <a href="{{ route('admin.users.index') }}"
+            class="btn btn-sm btn-outline-secondary" style="border-radius:9px;font-size:12.5px;">
+                <i class="fas fa-arrow-left me-1"></i> Volver al Directorio
+            </a>
+            @endcan
+            @can('seguridad.roles.crear')
+            <button class="btn btn-sm btn-primary" style="border-radius:9px;font-size:12.5px;" data-bs-toggle="modal" data-bs-target="#modalRol">
+                <i class="fas fa-plus me-1"></i>Crear Nuevo Rol
+            </button>
+            @endcan
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-enhanced alert-dismissible fade show" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-check-circle fa-2x mr-3 text-success"></i>
-                <div>
-                    <strong>¡Operación Exitosa!</strong><br>
-                    {{ session('success') }}
-                </div>
-            </div>
-            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-        </div>
-    @endif
-
-    <div class="row mb-4">
-        <div class="col-xl-4 col-md-6 mb-4">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mb-4">
+        <div class="col">
             <div class="card kpi-card-purple kpi-gradient-purple">
                 <div class="kpi-card-body">
                     <div class="kpi-floating-icon"><i class="fas fa-id-badge"></i></div>
-                    <div class="kpi-label"><i class="fas fa-list mr-1"></i>Total de Roles</div>
+                    <div class="kpi-label"><i class="fas fa-list me-1"></i>Total de Roles</div>
                     <div class="kpi-value">{{ $stats['total_roles'] ?? $roles->count() }}</div>
                     <div class="kpi-meta">Perfiles de acceso definidos</div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col">
             <div class="card kpi-card-purple kpi-gradient-blue">
                 <div class="kpi-card-body">
                     <div class="kpi-floating-icon"><i class="fas fa-users"></i></div>
-                    <div class="kpi-label"><i class="fas fa-user-check mr-1"></i>Usuarios Asignados</div>
+                    <div class="kpi-label"><i class="fas fa-user-check me-1"></i>Usuarios Asignados</div>
                     <div class="kpi-value">{{ $stats['usuarios_asignados'] ?? 0 }}</div>
                     <div class="kpi-meta">Personas con roles activos</div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col">
             <div class="card kpi-card-purple kpi-gradient-green">
                 <div class="kpi-card-body">
                     <div class="kpi-floating-icon"><i class="fas fa-key"></i></div>
-                    <div class="kpi-label"><i class="fas fa-shield-alt mr-1"></i>Permisos Disponibles</div>
+                    <div class="kpi-label"><i class="fas fa-shield-alt me-1"></i>Permisos Disponibles</div>
                     <div class="kpi-value">{{ $stats['promedio_permisos'] ?? 0 }}</div>
                     <div class="kpi-meta">Reglas de seguridad en DB</div>
                 </div>
@@ -272,13 +265,12 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
         @forelse ($roles as $role)
             @php
-                // Detectar si es un rol de sistema intocable
                 $isSuperAdmin = in_array(strtolower($role->name), ['super_admin', 'super_administrador']);
             @endphp
-            <div class="col-xl-4 col-md-6 mb-4">
+            <div class="col">
                 <div class="role-card {{ $isSuperAdmin ? 'is-admin' : '' }}">
 
                     {{-- Cabecera del Rol --}}
@@ -293,7 +285,7 @@
                             </div>
                         </div>
                         <div class="role-users-badge" title="Usuarios con este rol">
-                            <i class="fas fa-users"></i> {{ $role->users_count ?? $role->users->count() }}
+                            <i class="fas fa-users me-1"></i> {{ $role->users_count ?? $role->users->count() }}
                         </div>
                     </div>
 
@@ -302,7 +294,7 @@
                         <div class="role-subtitle">Permisos Asignados ({{ $role->permissions->count() }})</div>
                         <div class="perm-pill-container">
                             @if($isSuperAdmin)
-                                <span class="perm-pill perm-pill-all"><i class="fas fa-star mr-1"></i> ACCESO TOTAL A TODOS LOS MÓDULOS</span>
+                                <span class="perm-pill perm-pill-all"><i class="fas fa-star me-1"></i> ACCESO TOTAL A TODOS LOS MÓDULOS</span>
                             @elseif($role->permissions->count() > 0)
                                 @foreach($role->permissions->take(6) as $perm)
                                     <span class="perm-pill">{{ $perm->name }}</span>
@@ -312,41 +304,38 @@
                                     <span class="perm-pill perm-pill-more">+ {{ $role->permissions->count() - 6 }} más...</span>
                                 @endif
                             @else
-                                <span class="perm-pill text-muted bg-light border-dashed"><i class="fas fa-exclamation-circle mr-1"></i> Sin permisos asignados</span>
+                                <span class="perm-pill text-muted bg-light border-dashed"><i class="fas fa-exclamation-circle me-1"></i> Sin permisos asignados</span>
                             @endif
                         </div>
                     </div>
 
                     {{-- Footer (Acciones) --}}
                     <div class="role-footer">
-                        {{-- Idealmente esta ruta lleva a una vista donde se asignan los permisos con checkboxes --}}
                         @can('seguridad.roles.editar')
                             <a href="{{ route('admin.roles.edit', $role->id) }}" class="btn-role-config text-decoration-none">
-                                <i class="fas fa-sliders-h mr-1"></i> Configurar Permisos
+                                <i class="fas fa-sliders-h me-1"></i> Configurar Permisos
                             </a>
                         @endcan
                         <div class="d-flex gap-2">
-
-
-                                @if(!$isSuperAdmin)
-                                    @can('seguridad.roles.editar')
-                                        <button class="btn-role-delete btn-edit-name" data-id="{{ $role->id }}" data-name="{{ $role->name }}" title="Editar Nombre">
-                                            <i class="fas fa-pen"></i>
-                                        </button>
-                                    @endcan
-                                    @can('seguridad.roles.eliminar')
-                                    <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" class="form-delete-role m-0 d-inline">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn-role-delete" title="Eliminar Rol">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                    @endcan
-                                @else
-                                    <button type="button" class="btn-role-delete" disabled title="Rol de Sistema (Protegido)">
-                                        <i class="fas fa-lock opacity-50"></i>
+                            @if(!$isSuperAdmin)
+                                @can('seguridad.roles.editar')
+                                    <button class="btn-role-delete btn-edit-name" data-id="{{ $role->id }}" data-name="{{ $role->name }}" title="Editar Nombre">
+                                        <i class="fas fa-pen"></i>
                                     </button>
-                                @endif
+                                @endcan
+                                @can('seguridad.roles.eliminar')
+                                <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" class="form-delete-role m-0 d-inline">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn-role-delete" title="Eliminar Rol">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                                @endcan
+                            @else
+                                <button type="button" class="btn-role-delete" disabled title="Rol de Sistema (Protegido)">
+                                    <i class="fas fa-lock opacity-50"></i>
+                                </button>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -362,76 +351,75 @@
                         Crea perfiles como "Médico", "Recursos Humanos" o "Gerente" para comenzar a agrupar los permisos.
                     </p>
                     @can('seguridad.roles.crear')
-                        <button class="btn-create-role bg-purple text-white" data-toggle="modal" data-target="#modalRol" style="background:var(--purple-primary);">
-                            <i class="fas fa-plus mr-2"></i>Crear Primer Rol
+                        <button class="btn-create-role bg-purple text-white" data-bs-toggle="modal" data-bs-target="#modalRol" style="background:var(--purple-primary);">
+                            <i class="fas fa-plus me-2"></i>Crear Primer Rol
                         </button>
                     @endcan
                 </div>
             </div>
         @endforelse
     </div>
-</div>
 
-<div class="modal fade" id="modalRol" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        @can('seguridad.roles.crear')
-        <form id="formRol" action="{{ route('admin.roles.store') }}" method="POST" class="modal-content modal-custom">
-            @csrf
-            <div id="methodField"></div>
-
-            <div class="modal-header modal-header-custom">
-                <h5 class="modal-title modal-title-custom" id="modalTitle">
-                    <i class="fas fa-user-tag mr-2"></i> Nuevo Perfil de Acceso
-                </h5>
-                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            </div>
-
-            <div class="modal-body modal-body-custom">
-                <div class="form-group-custom mb-0">
-                    <label class="form-label-custom">
-                        <i class="fas fa-id-card"></i> Nombre del Rol
-                    </label>
-                    <input type="text" name="name" id="inputName" class="form-control form-control-custom text-lowercase" placeholder="ej: medico_laboral" required>
-                    <div class="form-hint">
-                        <i class="fas fa-info-circle text-primary"></i> Se recomienda usar minúsculas y guiones bajos (snake_case). Los permisos se configurarán en el siguiente paso.
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer modal-footer-custom">
-                <button type="button" class="btn btn-modal-action btn-modal-cancel" data-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-modal-action btn-modal-submit" id="btnSave">
-                    <i class="fas fa-save mr-2"></i>Guardar Rol
-                </button>
-            </div>
-        </form>
-        @else
-            <div class="modal-content modal-custom">
+    <div class="modal fade" id="modalRol" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            @can('seguridad.roles.crear')
+            <form id="formRol" action="{{ route('admin.roles.store') }}" method="POST" class="modal-content modal-custom">
+                @csrf
                 <div id="methodField"></div>
 
                 <div class="modal-header modal-header-custom">
-                    <h5 class="modal-title modal-title-custom">
-                        <i class="fas fa-user-tag mr-2"></i> Acceso Restringindo
+                    <h5 class="modal-title modal-title-custom" id="modalTitle">
+                        <i class="fas fa-user-tag me-2"></i> Nuevo Perfil de Acceso
                     </h5>
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body modal-body-custom">
-                    <div class="form-group-custom mb-0">
-                        <div class="form-hint">
-                            <i class="fas fa-info-circle text-primary"></i> No tienes permiso para realizar esta accion.
+                    <div class="mb-0">
+                        <label class="form-label-custom">
+                            <i class="fas fa-id-card me-1"></i> Nombre del Rol
+                        </label>
+                        <input type="text" name="name" id="inputName" class="form-control form-control-custom text-lowercase" placeholder="ej: medico_laboral" required>
+                        <div class="form-hint mt-2 small text-muted">
+                            <i class="fas fa-info-circle text-primary me-1"></i> Se recomienda usar minúsculas y guiones bajos (snake_case). Los permisos se configurarán en el siguiente paso.
                         </div>
                     </div>
                 </div>
 
                 <div class="modal-footer modal-footer-custom">
-                    <button type="button" class="btn btn-modal-action btn-modal-cancel" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-modal-action btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-modal-action btn-modal-submit" id="btnSave">
+                        <i class="fas fa-save me-2"></i>Guardar Rol
+                    </button>
+                </div>
+            </form>
+            @else
+            <div class="modal-content modal-custom">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title modal-title-custom">
+                        <i class="fas fa-user-tag me-2"></i> Acceso Restringido
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body modal-body-custom">
+                    <div class="mb-0">
+                        <div class="form-hint">
+                            <i class="fas fa-info-circle text-danger me-1"></i> No tienes permiso para realizar esta acción.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer modal-footer-custom">
+                    <button type="button" class="btn btn-modal-action btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
                 </div>
             </div>
-        @endcan
-
+            @endcan
+        </div>
     </div>
 </div>
+
+
 @endsection
 
 @push('scripts')
@@ -443,39 +431,41 @@ $(document).ready(function() {
         let id = $(this).data('id');
         let name = $(this).data('name');
 
-        $('#modalTitle').html('<i class="fas fa-edit mr-2"></i> Editar Nombre del Rol');
+        $('#modalTitle').html('<i class="fas fa-edit me-2"></i> Editar Nombre del Rol');
         $('#formRol').attr('action', `/admin/roles/${id}`);
         $('#methodField').html('@method("PUT")');
 
         $('#inputName').val(name);
-        $('#btnSave').html('<i class="fas fa-sync-alt mr-2"></i> Actualizar Nombre');
+        $('#btnSave').html('<i class="fas fa-sync-alt me-2"></i> Actualizar Nombre');
 
-        $('#modalRol').modal('show');
+        // Activación del modal nativa de Bootstrap 5 vía JS (en caso de que se necesite forzar)
+        var modalRol = new bootstrap.Modal(document.getElementById('modalRol'));
+        modalRol.show();
     });
 
-    // RESETEAR MODAL
+    // RESETEAR MODAL AL CERRARSE
     $('#modalRol').on('hidden.bs.modal', function () {
-        $('#modalTitle').html('<i class="fas fa-user-tag mr-2"></i> Nuevo Perfil de Acceso');
+        $('#modalTitle').html('<i class="fas fa-user-tag me-2"></i> Nuevo Perfil de Acceso');
         $('#formRol').attr('action', "{{ route('admin.roles.store') }}");
         $('#methodField').html('');
         $('#inputName').val('');
-        $('#btnSave').html('<i class="fas fa-save mr-2"></i> Guardar Rol');
+        $('#btnSave').html('<i class="fas fa-save me-2"></i> Guardar Rol');
     });
 
-    // ELIMINAR CON CONFIRMACIÓN
+    // ELIMINAR CON CONFIRMACIÓN (SweetAlert2)
     $('.form-delete-role').on('submit', function(e) {
         e.preventDefault();
         let form = this;
 
         Swal.fire({
             title: '¿Eliminar este Rol?',
-            html: '<p>Los usuarios que tengan este rol perderán inmediatamente todos los permisos asociados.</p>' +
-                  '<p class="text-danger font-weight-bold small">Esta acción es irreversible.</p>',
+            html: '<p class="mb-2">Los usuarios que tengan este rol perderán inmediatamente todos los permisos asociados.</p>' +
+                  '<p class="text-danger fw-bold small mb-0">Esta acción es irreversible.</p>',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#e74a3b',
             cancelButtonColor: '#858796',
-            confirmButtonText: '<i class="fas fa-trash mr-2"></i>Sí, eliminar rol',
+            confirmButtonText: '<i class="fas fa-trash me-2"></i>Sí, eliminar rol',
             cancelButtonText: 'Cancelar',
             reverseButtons: true
         }).then((result) => {
