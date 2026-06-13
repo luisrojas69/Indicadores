@@ -1,6 +1,6 @@
 {{-- articulos/index.blade.php --}}
 @extends('layouts.app')
-@section('title', 'Artículos')
+@section('title', 'Catálogo deArtículos')
 
 @section('breadcrumb')
     <span class="current">Artículos</span>

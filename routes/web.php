@@ -69,6 +69,8 @@ Route::middleware(['auth', 'erp.connection'])->group(function () {
     require __DIR__.'/admin.php';
     // CARGA DEL MÓDULO DE TABLET (FASE 5)
     require __DIR__.'/tablet.php';
+    // CARGA DEL MÓDULO DE VENTAS (FASE 1.5)
+    require __DIR__.'/ventas.php';
 
 
     // ── Módulo Financiero (Fase 2) ────────────────────────────────────────

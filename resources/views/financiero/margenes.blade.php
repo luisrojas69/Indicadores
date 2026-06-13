@@ -128,7 +128,10 @@
 
 
         @can('financiero.config.costo.editar')
-        <button class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 data-bs-toggle="modal" data-bs-target="#modalConfigCosto">
+
+        <button data-bs-toggle="modal" data-bs-target="#modalConfigCosto""
+           class="btn btn-sm btn-outline-warning d-flex align-items-center gap-2"
+           style="border-radius: 9px; font-size: 12.5px;">
             <i class="fas fa-cog"></i> Actualizar Costos
         </button>
         @endcan

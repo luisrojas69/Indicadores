@@ -15,10 +15,14 @@
         </div>
 
         @if($rankingVendedores->isNotEmpty())
-            <span class="badge" style="background: #eff6ff; color: var(--brand-primary); font-size: 11px; border-radius: 6px; font-weight: 600;">
+            <span class="badge" style="background: #ffffef6e; color: var(--brand-primary); font-size: 11px; border-radius: 6px; font-weight: 600;">
                 {{ $rankingVendedores->count() }} vendedores
             </span>
         @endif
+
+        <a href="{{ route('ventas.ranking') }}" class="btn btn-sm btn-outline-warning" style="border-radius:10px;" alt="Ver ranking completo">
+            <i class="fas fa-star me-1"></i>
+        </a>
     </div>
 
     <div style="overflow-x: auto;">

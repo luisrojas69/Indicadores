@@ -174,7 +174,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                     COALESCE(SUM(TOT_NETO), 0) AS monto_facturado,
                     COUNT(DISTINCT CO_CLI)     AS clientes_activos
                 FROM [{$facturaEnc}]
-                WHERE ANULADA = 0
+                WHERE STATUS = 0
                 AND FEC_EMIS >= :from
                 AND FEC_EMIS <= :to
             ", ['from' => $dateFrom, 'to' => $dateTo]);
@@ -184,7 +184,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                 SELECT COALESCE(SUM(d.NETO), 0) AS cobranzas_mes
                 FROM [{$cobroEnc}] e
                 JOIN [{$cobroDet}] d ON d.cob_num = e.cob_num
-                WHERE e.anulado = 0
+                WHERE e.status = 0
                 AND e.fec_cob >= :from
                 AND e.fec_cob <= :to
             ", ['from' => $dateFrom, 'to' => $dateTo]);
@@ -198,7 +198,7 @@ class ProfitErpConnection implements ErpConnectionInterface
             $facturacionAnterior = $this->con()->selectOne("
                 SELECT COALESCE(SUM(TOT_NETO), 0) AS monto_facturado_anterior
                 FROM [{$facturaEnc}]
-                WHERE ANULADA = 0
+                WHERE STATUS = 0
                 AND FEC_EMIS >= :from
                 AND FEC_EMIS <= :to
             ", ['from' => $prevFrom, 'to' => $prevTo]);
@@ -211,7 +211,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                 FROM (
                     SELECT CO_CLI, MIN(FEC_EMIS) AS primera_fac
                     FROM [{$facturaEnc}]
-                    WHERE ANULADA = 0
+                    WHERE STATUS = 0
                     GROUP BY CO_CLI
                 ) AS primeras
                 WHERE primeras.primera_fac >= :from
@@ -343,7 +343,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                 FROM [{$detalle}]  d
                 JOIN [{$encabezado}] e ON e.FACT_NUM = d.FACT_NUM
                 LEFT JOIN [{$articulo}] a ON a.CO_ART = d.CO_ART
-                WHERE e.anulada = 0
+                WHERE e.STATUS = 0
                   AND e.FEC_EMIS >= :from
                   AND e.FEC_EMIS <= :to
                 GROUP BY
@@ -396,7 +396,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                 LEFT JOIN (
                     SELECT LTRIM(RTRIM(co_ven)) AS co_ven_clean, COALESCE(SUM(TOT_NETO), 0) AS mto_facturado
                     FROM [{$facturaEnc}]
-                    WHERE ANULADA = 0
+                    WHERE STATUS = 0
                     AND FEC_EMIS >= '{$from}'
                     AND FEC_EMIS <= '{$to}'
                     GROUP BY co_ven
@@ -470,7 +470,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                 FROM [{$detalle}]  d
                 JOIN [{$encabezado}] e ON e.FACT_NUM = d.FACT_NUM
                 LEFT JOIN [{$articulo}] a ON a.CO_ART = d.CO_ART
-                WHERE e.anulada = 0
+                WHERE e.STATUS = 0
                   AND e.FEC_EMIS >= :from
                   AND e.FEC_EMIS <= :to
                 GROUP BY d.CO_ART, a.ART_DES
@@ -520,7 +520,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                 FROM [{$detalle}]  d
                 JOIN [{$encabezado}] e ON e.FACT_NUM = d.FACT_NUM
                 LEFT JOIN [{$articulo}] a ON a.CO_ART = d.CO_ART
-                WHERE e.anulada = 0
+                WHERE e.STATUS = 0
                   AND e.FEC_EMIS >= :from
                   AND e.FEC_EMIS <= :to
             ", ['from' => $dateFrom, 'to' => $dateTo]);
@@ -621,7 +621,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                 JOIN [{$ordenDet}] d ON d.FACT_NUM = e.FACT_NUM
                 LEFT JOIN [{$articulo}]  a ON a.CO_ART = d.CO_ART
                 LEFT JOIN [{$proveedor}] p ON p.CO_PROV = e.CO_CLI
-                WHERE e.ANULADA = 0
+                WHERE e.STATUS = 0
                 AND e.FEC_EMIS >= :from
                 AND e.FEC_EMIS <= :to
                 ORDER BY e.FEC_EMIS DESC, d.PENDIENTE DESC;
@@ -666,7 +666,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                 JOIN [{$ajusteDet}] d ON d.AJUE_NUM = e.AJUE_NUM
                 JOIN [{$tipoAju}]   t ON t.CO_TIPO = d.TIPO
                 LEFT JOIN [{$articulo}] a ON a.CO_ART = d.CO_ART
-                WHERE e.ANULADA = 0
+                WHERE e.STATUS = 0
                 AND t.TIPO_TRANS = 'S'                -- Filtramos estrictamente Salidas
                 AND e.FECHA >= :from
                 AND e.FECHA <= :to
@@ -832,7 +832,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                 FROM [{$facturaTable}] e
                 INNER JOIN [{$rengFacTable}] d ON d.fact_num = e.fact_num
                 WHERE d.co_art = :codigo
-                  AND e.anulada = 0
+                  AND e.STATUS = 0
             ", ['codigo' => $codigo]);
 
             // 3. Cálculo de Última Venta y Última Compra desde renglones operacionales
@@ -841,12 +841,12 @@ class ProfitErpConnection implements ErpConnectionInterface
                     (SELECT MAX(v.fec_emis)
                      FROM [{$facturaTable}] v
                      INNER JOIN [{$rengFacTable}] rv ON rv.fact_num = v.fact_num
-                     WHERE rv.co_art = :codigo_v AND v.anulada = 0) AS ultima_venta,
+                     WHERE rv.co_art = :codigo_v AND v.STATUS = 0) AS ultima_venta,
 
                     (SELECT MAX(c.fec_emis)
                      FROM [{$comprasTable}] c
                      INNER JOIN [{$rengComTable}] rc ON rc.fact_num = c.fact_num
-                     WHERE rc.co_art = :codigo_c AND c.anulada = 0) AS ultima_compra
+                     WHERE rc.co_art = :codigo_c AND c.STATUS = 0) AS ultima_compra
                 ", [
                     'codigo_v' => $codigo,
                     'codigo_c' => $codigo
@@ -918,7 +918,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                 FROM [{$tablaFactura}] e
                 INNER JOIN [{$tablaRenglon}] d ON e.fact_num = d.fact_num
                 WHERE YEAR(e.fec_emis) = :year
-                  AND e.anulada = 0
+                  AND e.STATUS = 0
                   AND d.co_art IN ({$placeholders})
                 GROUP BY d.co_art, MONTH(e.fec_emis)
             ", $params);
@@ -969,7 +969,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                     FROM [{$facturaTable}] e
                     INNER JOIN [{$rengFacTable}] d ON d.fact_num = e.fact_num
                     WHERE YEAR(e.fec_emis) = :year
-                      AND e.anulada = 0
+                      AND e.STATUS = 0
                     GROUP BY d.co_art
                 ) v ON v.co_art = a.CO_ART
                 -- Opcional: Filtrar solo artículos con movimiento o activos

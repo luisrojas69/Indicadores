@@ -38,7 +38,7 @@ return [
         'descripcion'  => env('TABLET_FIELD_DESCRIPCION',  'ART_DES'),
         'marca'        => env('TABLET_FIELD_MARCA',        'CO_COLOR'),      // Línea = Marca
         'sublinea'     => env('TABLET_FIELD_SUBLINEA',     'CO_SUBL'),
-        'categoria'    => env('TABLET_FIELD_CATEGORIA',    'CO_CAT'),
+        'categoria'    => env('TABLET_FIELD_CATEGORIA',    'CO_LIN'),
         'modelo'       => env('TABLET_FIELD_MODELO',       'MODELO'),
         'color'        => env('TABLET_FIELD_COLOR',        'CO_LIN'),
         'precio1'      => 'PREC_VTA1', // Precio de venta nivel 1 (puede ser el precio público o el precio para mayoristas, según la configuración del cliente)
@@ -49,7 +49,7 @@ return [
         'stock_min'    => 'STOCK_MIN',
         'stock_com'    => 'STOCK_COM',
         'barras'       => 'CO_ART',
-        'proveedor'    => 'PROV',
+        'proveedor'    => 'CO_PROV',
     ],
 
     /*
@@ -83,7 +83,7 @@ return [
     | Tu query usa 'art' — Profit Plus 2K8 puede usar 'saArticulo' o 'art'
     | dependiendo del esquema. Centralizado aquí para no hardcodear.
     */
-    'tabla_articulo' => env('TABLET_TABLA_ARTICULO', 'art'),
+    'tabla_articulo' => env('PROFIT_TABLE_ARTICULO',           'art'),
 
     /*
     |--------------------------------------------------------------------------
@@ -112,11 +112,42 @@ return [
     'categorias' => [
         // Ejemplo JellCelulars — ajustar según los valores reales en CO_CAT de Profit
         //'' => 'Todos',
-        'A01' => 'COMPONENTES DE COMPUTADORAS',
-        //'A02' => 'COMPUTADORAS',
-        // 'CARG'  => 'Cargadores',
-        // 'FORRO' => 'Forros',
-        // 'SERV'  => 'Servicio Técnico',
+        '000001' => 'Accesorios Varios',
+        '000002' => 'Celulares',
+        '000003'  => 'Cargadores',
+        '000004'  => 'Audifonos',
+        '000005'  => 'Cornetas',
+        '000006'  => 'Maquillaje',
+        '000007'  => 'Gorras',
+        '000008'  => 'Bolsos y Carteras',
+        '000009'  => 'Comestics',
+        '000010'  => 'Uñas',
+        '000011'  => 'Globos',
+        '000012'  => 'PERFUMES',
+        '000013'  => 'RELOJ',
+        '000014'  => 'COMPUTADORAS',
+        '000015'  => 'MEMORIAS',
+        '000016'  => 'PENDRIVE',
+        '000017'  => 'CABLES',
+        '000018'  => 'BATERIAS',
+        '000019'  => 'CONTROLES',
+        '000020'  => 'LENTES',
+        '000021'  => 'ESTUCHES',
+        '000022'  => 'BISUTERIA',
+        '000023'  => 'SERVICIO TECNICO',
+        '000024'  => 'TACTIL',
+        '000025'  => 'TAPAS TRASERA',
+        '000026'  => 'CORREAS',
+        '000027'  => 'PANTALLAS',
+        '000028'  => 'FLEX Y PINDE CARGA',
+        '000029'  => 'MICAS',
+        '000030'  => 'ANTI GOLPE',
+        '000031'  => 'TELEFONOS',
+        '000032'  => 'CAJAS DE REGALOS',
+        '000033'  => 'PRUEBA',
+        '000034'  => 'REPARACION',
+        '000035'  => 'MODEN Y ROUTER',
+        '000036'  => 'PRUEBA'
     ],
 
     /*
@@ -126,11 +157,38 @@ return [
     | Si un artículo no tiene imagen, se usa el emoji/icono de su categoría.
     */
     'categoria_icons' => [
-        'SMART'  => '📱',
-        'ACCES'  => '🎧',
-        'CARG'   => '🔌',
-        'FORRO'  => '🛡️',
-        'SERV'   => '🔧',
+        '000001'  => '🌏',
+        '000002'  => '📱',
+        '000003'  => '⚡',
+        '000004'  => '🎧',
+        '000005'  => '🔊',
+        '000006'  => '💄',
+        '000007'  => '🧢',
+        '000008'  => '👜',
+        '000009'  => '🍬',
+        '000010'  => '💅',
+        '000011'  => '🎈',
+        '000012'  => '🌸',
+        '000013'  => '⌚',
+        '000017'  => '🔌',
+        '000018'  => '🔋',
+        '000019'  => '🕹️',
+        '000020'  => '👓',
+        '000021'  => '📱',
+        '000022'  => '💍',
+        '000024'  => '👆',
+        '000025'  => '🧱',
+        '000026'  => '🩲',
+        '000027'  => '🖥️',
+        '000028'  => '🔧',
+        '000029'  => '🛡️',
+        '000030'  => '💥',
+        '000031'  => '📞',
+        '000032'  => '🎁',
+        '000033'  => '🔬',
+        '000034'  => '🔧',
+        '000035'  => '🔧',
+        '000036'  => '🔬',
         'default'=> '📦',
     ],
 
