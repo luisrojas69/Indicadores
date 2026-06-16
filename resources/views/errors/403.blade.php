@@ -16,7 +16,7 @@
 
         {{-- Título --}}
         <h2 class="h3 fw-bold text-gray-800 mb-2">
-            403 - Acción no permitida
+            403 - Acción no permitida.
         </h2>
 
         {{-- Mensaje --}}
