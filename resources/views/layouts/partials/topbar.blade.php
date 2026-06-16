@@ -378,8 +378,11 @@
             <i class="fas fa-home" style="font-size:11px;"></i>
         </a>
         <span style="color:#d1d3e2;font-size:11px;">/</span>
-        @yield('breadcrumb', '<span class="current">Dashboard</span>')
+        @unless(View::hasSection('hide_breadcrumb'))
+            @yield('breadcrumb', '<span class="current">Dashboard</span>')
+        @endunless
     </div>
+
 
     {{-- ── C. Selector de fechas ───────────────────────────────────── --}}
     @unless(View::hasSection('hide_daterange'))
@@ -494,19 +497,22 @@
                 @endcan
 
                 {{-- Artículos --}}
+                @can('inventario.articulos.ver')
                 <a href="{{ route('articulos.index') }}" class="module-item">
                     <div class="module-item-icon" style="background:linear-gradient(135deg,#0891b2,#0e7490);">
                         <i class="fas fa-barcode"></i>
                     </div>
                     <span>Artículos</span>
                 </a>
-
+                @endcan
+                @can('inventario.articulos.rendimiento')
                 <a href="{{ route('articulos.rendimiento') }}" class="module-item">
                     <div class="module-item-icon" style="background:linear-gradient(135deg,#d97706,#b45309);">
                         <i class="fas fa-chart-line"></i>
                     </div>
                     <span>Rendimiento</span>
                 </a>
+                @endcan
 
                 {{-- Seguridad (solo super_admin / con permiso) --}}
                 @can('seguridad.usuarios.ver')
@@ -547,12 +553,17 @@
                     </div>
                     <span>Mi Perfil</span>
                 </a>
-                <a href="#" class="module-item">
-                    <div class="module-item-icon" style="background:linear-gradient(135deg,#f65a3e,#dd0a0a);">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </div>
-                    <span>Logout</span>
-                </a>
+
+
+                <form method="POST" action="{{ route('logout') }}" id="logoutForm">
+                    @csrf
+                    <button type="submit" class="module-item">
+                        <div class="module-item-icon" style="background:linear-gradient(135deg,#f65a3e,#dd0a0a);">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <span>Logout</span>
+                    </button>
+                </form>
 
             </div>
         </div>
@@ -661,7 +672,7 @@
             {{-- Nombre + rol (solo desktop) --}}
             <div class="topbar-user-info">
                 <span class="topbar-user-name">
-                    {{ Auth::user()?->name ?? 'Usuario' }}
+                    {{ Auth::user()?->full_name ?? 'Usuario' }}
                 </span>
                 <span class="topbar-user-role">
                     {{ Auth::user()?->roles?->first()?->name ?? 'Sin rol' }}

@@ -25,14 +25,6 @@ class HomeController extends Controller
      */
     public function index()
     {
-       // Gate::authorize('seguridad.usuarios.ver');
-        $users = User::with('roles')->get(); // Cargar los roles de cada usuario
-        $stats = [
-           'total' => User::count(),
-           'admins' => User::role('super_admin')->count(), // Ajusta según el nombre de tu rol administrador
-            'sin_rol' => User::doesntHave('roles')->count(),
-            'roles_activos' => Role::count(),
-        ];
-        return view('dashboard.index', compact('users', 'stats'));
+        return view('about');
     }
 }

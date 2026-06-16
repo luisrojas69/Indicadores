@@ -156,28 +156,36 @@
         {{-- ┌─────────────────────────────────────────────────────┐ --}}
         {{-- │  SEGURIDAD                                          │ --}}
         {{-- └─────────────────────────────────────────────────────┘ --}}
-
+        @canany(['seguridad.dashboard', 'seguridad.menu', 'seguridad.reportes'])
             <div class="nav-section-label">Administración</div>
-
+            @can('seguridad.usuarios.gestionar')
             <a href="{{ route('admin.users.index') }}"
                class="nav-item-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}"
                data-tooltip="Usuarios">
                 <span class="nav-icon"><i class="fas fa-user-shield"></i></span>
                 <span class="nav-label">Usuarios</span>
             </a>
+            @endcan
 
-            <a href="{{ route('admin.roles.index') }}"
+            @can('seguridad.roles.gestionar')
+             <a href="{{ route('admin.roles.index') }}"
                class="nav-item-link {{ request()->routeIs('admin.roles*') ? 'active' : '' }}"
                data-tooltip="Roles">
                 <span class="nav-icon"><i class="fas fa-key"></i></span>
                 <span class="nav-label">Roles</span>
             </a>
+            @endcan
+
+            @can('seguridad.permisos.gestionar')
             <a href="{{ route('admin.permissions.index') }}"
-               class="nav-item-link {{ request()->routeIs('admin.permissions*') ? 'active' : '' }}"
-               data-tooltip="Permisos">
-                <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
-                <span class="nav-label">Permisos</span>
+                class="nav-item-link {{ request()->routeIs('admin.permissions*') ? 'active' : '' }}"
+                data-tooltip="Permisos">
+                    <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
+                    <span class="nav-label">Permisos</span>
             </a>
+            @endcan
+        @endcanany
+
 
 
     </nav>

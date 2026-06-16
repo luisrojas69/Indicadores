@@ -16,11 +16,13 @@ Route::prefix('articulos')->name('articulos.')->group(function () {
 
     // Listado con búsqueda y paginación
     Route::get('/', [ArticuloController::class, 'index'])
-        ->name('index');
+        ->name('index')
+        ->middleware('can:inventario.articulos.ver');
 
     // Vista de rendimiento histórico — DEBE ir antes de /{codigo}
     Route::get('/rendimiento', [ArticuloController::class, 'rendimiento'])
-        ->name('rendimiento');
+        ->name('rendimiento')
+        ->middleware('can:inventario.articulos.rendimiento');
 
     // Búsqueda AJAX para autocomplete (Fase 5)
     Route::get('/search', [ArticuloController::class, 'search'])
@@ -29,5 +31,6 @@ Route::prefix('articulos')->name('articulos.')->group(function () {
     // Ficha detalle de artículo
     Route::get('/{codigo}', [ArticuloController::class, 'show'])
         ->name('show')
-        ->where('codigo', '[A-Za-z0-9\-\_\.]+');
+        ->where('codigo', '[A-Za-z0-9\-\_\.]+')
+        ->middleware('can:inventario.articulos.ver');
 });

@@ -268,7 +268,7 @@
         align-items: center;
     }
 
-    .user-avatar {
+    .user-avatar-page {
         width: 50px;
         height: 50px;
         border-radius: 50%;
@@ -284,12 +284,12 @@
         position: relative;
     }
 
-    .user-avatar-warning {
+    .user-avatar-page-warning {
         background: linear-gradient(135deg, #f6c23e, #dda20a);
         box-shadow: 0 4px 12px rgba(246, 194, 62, 0.3);
     }
 
-    .user-avatar-status {
+    .user-avatar-page-status {
         position: absolute;
         bottom: -2px;
         right: -2px;
@@ -300,7 +300,7 @@
         border: 2px solid white;
     }
 
-    .user-avatar-status-warning {
+    .user-avatar-page-status-warning {
         background: #f6c23e;
     }
 
@@ -545,7 +545,7 @@
             align-items: flex-start;
         }
 
-        .user-avatar {
+        .user-avatar-page {
             margin-bottom: 10px;
         }
     }
@@ -665,9 +665,9 @@
                         <tr>
                             <td>
                                 <div class="user-display">
-                                    <div class="user-avatar {{ $user->roles->isEmpty() ? 'user-avatar-warning' : '' }}">
+                                    <div class="user-avatar-page {{ $user->roles->isEmpty() ? 'user-avatar-page-warning' : '' }}">
                                         {{ strtoupper(substr($user->name, 0, 1)) }}{{ strtoupper(substr($user->last_name ?? '', 0, 1)) }}
-                                        <span class="user-avatar-status {{ $user->roles->isEmpty() ? 'user-avatar-status-warning' : '' }}"></span>
+                                        <span class="user-avatar-page-status {{ $user->roles->isEmpty() ? 'user-avatar-page-status-warning' : '' }}"></span>
                                     </div>
                                     <div class="user-details">
                                         <span class="user-name">{{ $user->fullname ?? '' }}</span>
