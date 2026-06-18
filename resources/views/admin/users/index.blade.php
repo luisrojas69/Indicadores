@@ -4,6 +4,7 @@
     Variables: $resumen, $stock, $salidas, $entradas, $from, $to, $stats, $users
 --}}
 @extends('layouts.app')
+@section('hide_daterange', true)
 @section('title-page', 'Gestión de Usuarios y Roles')
 
 @section('breadcrumb')

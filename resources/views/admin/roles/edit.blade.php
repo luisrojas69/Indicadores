@@ -24,6 +24,7 @@
      - FontAwesome para iconografía.
 --}}
 @extends('layouts.app')
+@section('hide_daterange', true)
 @section('title-page', 'Configurar Rol: ' . $role->name)
 
 @section('breadcrumb')

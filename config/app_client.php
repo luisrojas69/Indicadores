@@ -39,13 +39,13 @@ return [
     | El cliente puede cambiar colores sin tocar una sola línea de Blade/CSS.
     */
     'brand' => [
-        'primary'        => env('CLIENT_COLOR_PRIMARY',   '#4e73df'), // Azul SBAdmin2 por defecto
-        'primary_dark'   => env('CLIENT_COLOR_PRIMARY_DARK',   '#3a57c5'),
+        'primary'        => env('CLIENT_COLOR_PRIMARY',   '#45B2F3'), // Azul SBAdmin2 por defecto
+        'primary_dark'   => env('CLIENT_COLOR_PRIMARY_DARK',   '#4e73df'), // Variante más oscura para hover/active
         'secondary'      => env('CLIENT_COLOR_SECONDARY', '#858796'),
         'success'        => env('CLIENT_COLOR_SUCCESS',   '#1cc88a'),
-        'warning'        => env('CLIENT_COLOR_WARNING',   '#f6c23e'),
+        'warning'        => env('CLIENT_COLOR_WARNING',   '#FAA727'),
         'danger'         => env('CLIENT_COLOR_DANGER',    '#e74a3b'),
-        'sidebar_bg'     => env('CLIENT_SIDEBAR_BG',      '#4e73df'), // Color de fondo del sidebar
+        'sidebar_bg'     => env('CLIENT_SIDEBAR_BG',      '#0157DE'), // Color de fondo del sidebar
     ],
 
     /*
@@ -56,9 +56,9 @@ return [
     'locale' => [
         'timezone'         => env('CLIENT_TIMEZONE',          'America/Caracas'),
         'language'         => env('CLIENT_LANGUAGE',          'es'),
-        'currency_symbol'  => env('CLIENT_CURRENCY_SYMBOL',   '$'),
-        'locale_symbol'    => env('CLIENT_LOCALE_SYMBOL',     '$'),
-        'currency_code'    => env('CLIENT_CURRENCY_CODE',     'USD'),
+        'currency_symbol'  => env('CLIENT_CURRENCY_SYMBOL',   '💵'),
+        'locale_symbol'    => env('CLIENT_LOCALE_SYMBOL',     'Bs.'),
+        'currency_code'    => env('CLIENT_CURRENCY_CODE',     'BS.'),
         'decimal_places'   => (int) env('CLIENT_DECIMAL_PLACES', 2),
         'decimal_sep'      => env('CLIENT_DECIMAL_SEP',       ','),
         'thousands_sep'    => env('CLIENT_THOUSANDS_SEP',     '.'),

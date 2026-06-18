@@ -184,7 +184,7 @@ class ProfitErpConnection implements ErpConnectionInterface
                 SELECT COALESCE(SUM(d.NETO), 0) AS cobranzas_mes
                 FROM [{$cobroEnc}] e
                 JOIN [{$cobroDet}] d ON d.cob_num = e.cob_num
-                WHERE e.status = 0
+                WHERE e.anulado = 0
                 AND e.fec_cob >= :from
                 AND e.fec_cob <= :to
             ", ['from' => $dateFrom, 'to' => $dateTo]);

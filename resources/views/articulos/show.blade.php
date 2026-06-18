@@ -285,7 +285,7 @@
             <div class="row g-2" style="font-size:12.5px;">
                 @foreach([
                     ['Almacén',           $articulo['almacen']             ?: 'Principal'],
-                    ['Ubicación',         '—'],
+                    ['Ubicación',         $articulo['ubicacion']           ?: 'Sin datos'],
                     ['Proveedor Principal',$articulo['proveedor_principal'] ?: 'Sin datos'],
                     ['Código de Barras',  $articulo['codigo_barras']        ?: 'Sin datos'],
                 ] as [$label, $value])

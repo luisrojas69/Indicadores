@@ -241,7 +241,7 @@ class RendimientoService
             'producto_top'         => $productoTop ? [
                 'codigo'      => $productoTop['codigo'],
                 'descripcion' => $productoTop['descripcion'],
-                'unidades'    => $productoTop['codigo'],
+                'unidades'    => $productoTop['total_unidades'],
             ] : null,
             'mes_mas_activo'       => $mesMasActivo,
             'mes_mas_activo_label' => self::MESES[$mesMasActivo] ?? '—',

@@ -2,6 +2,7 @@
     Gestionar Roles y Permisos para Usuarios en Laravel con Spatie
 --}}
 @extends('layouts.app')
+@section('hide_daterange', true)
 @section('title-page', 'Administración de Permisos')
 
 @section('breadcrumb')

@@ -2,6 +2,7 @@
     Pagina para asignar roles a los usuarios.
 --}}
 @extends('layouts.app')
+@section('hide_daterange', true)
 @section('title-page', 'Asignar Roles: ' . $user->name)
 
 @section('breadcrumb')

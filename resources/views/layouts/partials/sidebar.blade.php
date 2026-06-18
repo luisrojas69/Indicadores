@@ -128,7 +128,7 @@
             @can('gerencia.vendedores.ranking.ver')
                 <div class="nav-section-label">Ventas</div>
 
-                <a href="#"
+                <a href="{{ route('ventas.ranking') }}"
                    class="nav-item-link {{ request()->routeIs('vendedores*') ? 'active' : '' }}"
                    data-tooltip="Vendedores">
                     <span class="nav-icon"><i class="fas fa-users"></i></span>
