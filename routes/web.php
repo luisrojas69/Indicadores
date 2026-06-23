@@ -33,16 +33,19 @@ Route::get('/', function () {
 
     $user = auth()->user();
 
-    if ($user->can('vendedor.catalogo.ver')) {
-        return redirect()->route('tablet.catalogo');
+    // 1. JERARQUÍA MÁXIMA: Super Admin y Gerencia al Dashboard
+    if ($user->hasRole('SUPER_ADMIN') || $user->can('gerencia.dashboard.ver')) {
+        return redirect()->route('dashboard.index');
     }
 
+    // 2. OPERATIVO: Cajeros
     if ($user->can('caja.prepedidos.ver')) {
         return redirect()->route('caja.index');
     }
 
-    if ($user->can('gerencia.dashboard.ver')) {
-        return redirect()->route('dashboard.index');
+    // 3. OPERATIVO: Vendedores
+    if ($user->can('vendedor.catalogo.ver')) {
+        return redirect()->route('tablet.catalogo');
     }
 
     return redirect()->route('home');
