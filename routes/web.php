@@ -25,12 +25,27 @@ use App\Http\Controllers\ProfileController;
 Auth::routes();
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-// ── Ruta raíz → redirige según rol ────────────────────────────────────────
+// ── Ruta raíz → distribuidor de tráfico según permisos ────────────────────
 Route::get('/', function () {
-    if (auth()->check()) {
+    if (!auth()->check()) {
+        return redirect()->route('login');
+    }
+
+    $user = auth()->user();
+
+    if ($user->can('vendedor.catalogo.ver')) {
+        return redirect()->route('tablet.catalogo');
+    }
+
+    if ($user->can('caja.prepedidos.ver')) {
+        return redirect()->route('caja.index');
+    }
+
+    if ($user->can('gerencia.dashboard.ver')) {
         return redirect()->route('dashboard.index');
     }
-    return redirect()->route('login');
+
+    return redirect()->route('home');
 });
 
 // ── Grupo principal: autenticado + ERP disponible ─────────────────────────

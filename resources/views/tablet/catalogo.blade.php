@@ -493,14 +493,16 @@
     {{-- ── Barra superior ────────────────────────────────────── --}}
     <div class="cat-bar">
         <div class="cat-search-wrap">
-            <i class="fas fa-search cat-search-ico"></i>
+            <i class="fas fa-search cat-search-ico" onclick="executeSearch()" style="cursor: pointer;" title="Buscar"></i>
+            
             <input type="text" id="searchInput" class="cat-search"
-                   placeholder="Buscar producto, código o marca..."
-                   value="{{ $filters['search'] }}"
-                   autocomplete="off"
-                   enterkeyhint="search">
+                placeholder="Buscar producto, código o marca..."
+                value="{{ $filters['search'] ?? '' }}"
+                autocomplete="off"
+                enterkeyhint="search">
+                
             <div class="cat-search-clear {{ !empty($filters['search']) ? 'visible' : '' }}"
-                 id="clearSearch" onclick="clearSearch()">
+                id="clearSearch" onclick="clearSearch()">
                 <i class="fas fa-times"></i>
             </div>
         </div>
@@ -1068,31 +1070,41 @@ window.clearSearch = () => {
     window.location.href = u.toString();
 };
 
-/* ─ Búsqueda con debounce — NO rompe foco del input ─ */
-let searchTimer;
+// Nueva función centralizada para ejecutar la búsqueda
+window.executeSearch = () => {
+    const searchInput = document.getElementById('searchInput');
+    const u = new URL(window.location.href);
+    
+    if (searchInput.value.trim() === '') {
+        u.searchParams.delete('search');
+    } else {
+        u.searchParams.set('search', searchInput.value.trim());
+    }
+    
+    u.searchParams.set('page', '1');
+    window.location.href = u.toString();
+};
+
+window.clearSearch = () => {
+    const u = new URL(window.location.href);
+    u.searchParams.delete('search');
+    u.searchParams.set('page', '1');
+    window.location.href = u.toString();
+};
+
 const searchInput = document.getElementById('searchInput');
 const clearBtn    = document.getElementById('clearSearch');
 
+// El evento 'input' AHORA SOLO sirve para mostrar/ocultar la X, NO recarga la página
 searchInput?.addEventListener('input', function() {
-    clearBtn?.classList.toggle('visible', this.value.length > 0);
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-        const u = new URL(window.location.href);
-        u.searchParams.set('search', this.value);
-        u.searchParams.set('page', '1');
-        window.location.href = u.toString();
-    }, 700); // 700ms — suficiente para terminar de tipear sin lagear
+    clearBtn?.classList.toggle('visible', this.value.trim().length > 0);
 });
 
-// Buscar al presionar Enter en el teclado táctil
+// Buscar únicamente al presionar Enter en el teclado físico o táctil
 searchInput?.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         e.preventDefault();
-        clearTimeout(searchTimer);
-        const u = new URL(window.location.href);
-        u.searchParams.set('search', this.value);
-        u.searchParams.set('page', '1');
-        window.location.href = u.toString();
+        executeSearch();
     }
 });
 
