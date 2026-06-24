@@ -18,11 +18,11 @@ Route::prefix('ventas')->name('ventas.')->group(function () {
 
     Route::get('/', [VentasController::class, 'index'])
         ->name('index')
-        ->middleware('can:ventas.dashboard.ver');
+        ->middleware('can:gerencia.vendedores.ranking.ver');
 
     // ── Vista de Ranking de Vendedores ───────────────────────────────────────
     Route::get('/ranking', [VentasController::class, 'rankingVendedores'])
         ->name('ranking')
-        ->middleware('can:ventas.ranking.ver');
+        ->middleware('can:gerencia.vendedores.ranking.ver');
 
 });

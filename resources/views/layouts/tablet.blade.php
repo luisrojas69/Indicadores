@@ -213,7 +213,8 @@
     <header class="t-header">
         <a href="{{ route('tablet.catalogo') }}" class="t-brand">
             <div class="t-logo">
-                {{ strtoupper(substr(config('app_client.short_name','BI'),0,2)) }}
+                {{-- strtoupper(substr(config('app_client.short_name','BI'),0,2)) --}}
+                <img src="{{ asset(config('app_client.logo-sidebar')) }}" alt="{{ config('app_client.short_name') }}" class="img-fluid">
             </div>
             <div class="t-brand-name">
                 {{ config('app_client.short_name') }}

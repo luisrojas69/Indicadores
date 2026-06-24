@@ -2,6 +2,7 @@
     Página informativa acerca de LR-Indicadores, su propósito, módulos, y el perfil del desarrollador.
 --}}
 @extends('layouts.app')
+@section('hide_daterange', true)
 @section('title-page', 'Acerca de '. config('app_client.system.name')   .' v'. config('app_client.system.version'))
 
 @section('breadcrumb')

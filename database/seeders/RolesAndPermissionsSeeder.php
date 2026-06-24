@@ -109,6 +109,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'vendedor.prepedido.cancelar',
                 'caja.prepedidos.ver',
                 'caja.prepedidos.procesar',
+                'ventas.dashboard.ver',
+                'ventas.ranking.ver',
             ],
         ];
 

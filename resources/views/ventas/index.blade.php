@@ -20,7 +20,7 @@
         {{-- Mensaje --}}
         <p class="text-muted mb-4">
             Vista en construccion:
-            Vuelva pronto para consultar el ranking de vendedores y sus métricas de desempeño.
+            Vuelva pronto para consultar el dashboard de ventas y vendedores con sus métricas de desempeño.
         </p>
 
         {{-- Acciones --}}

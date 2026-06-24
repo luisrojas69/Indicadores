@@ -10,7 +10,8 @@
     {{-- ── Brand ─────────────────────────────────────────────── --}}
     <a href="{{ route('dashboard.index') }}" class="sidebar-brand" title="{{ config('app_client.name') }}">
         <div class="sidebar-brand-logo">
-            {{ strtoupper(substr(config('app_client.short_name', 'BI'), 0, 2)) }}
+            {{-- strtoupper(substr(config('app_client.short_name', 'BI'), 0, 2)) --}}
+            <img src="{{ asset(config('app_client.logo-sidebar')) }}" alt="{{ config('app_client.short_name') }}" class="img-fluid">
         </div>
         <div class="sidebar-brand-text">
             {{ config('app_client.short_name') }}
@@ -127,6 +128,13 @@
         @if(config('app_client.modules.vendedores'))
             @can('gerencia.vendedores.ranking.ver')
                 <div class="nav-section-label">Ventas</div>
+
+                <a href="{{ route('ventas.index') }}"
+                   class="nav-item-link {{ request()->routeIs('vendedores*') ? 'active' : '' }}"
+                   data-tooltip="Vendedores">
+                    <span class="nav-icon"><i class="fas fa-solid fa-money-bill-1"></i></span>
+                    <span class="nav-label">Dashboard Ventas</span>
+                </a>
 
                 <a href="{{ route('ventas.ranking') }}"
                    class="nav-item-link {{ request()->routeIs('vendedores*') ? 'active' : '' }}"

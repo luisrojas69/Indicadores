@@ -24,9 +24,10 @@ return [
     'name'         => env('CLIENT_NAME',         'JellCelulars'),
     'short_name'   => env('CLIENT_SHORT_NAME',   'JellCell'),
     'rif'          => env('CLIENT_RIF',           'J-12345678-0'),
-    'logo'         => env('CLIENT_LOGO',          'images/logo.png'),      // relativo a public/
-    'logo_dark'    => env('CLIENT_LOGO_DARK',     'images/logo-dark.png'), // variante para sidebar oscuro
-    'favicon'      => env('CLIENT_FAVICON',       'favicon.ico'),
+    'logo'         => env('CLIENT_LOGO',          'img/logo.png'),      // relativo a public/
+    'logo_dark'    => env('CLIENT_LOGO_DARK',     'img/logo-dark.png'), // variante para sidebar oscuro
+    'logo-sidebar' => env('CLIENT_LOGO_SIDEBAR',  'img/jelcel-head.png'),
+    'favicon'      => env('CLIENT_FAVICON',       'img/favicon.ico'),
     'address'      => env('CLIENT_ADDRESS',       ''),
     'phone'        => env('CLIENT_PHONE',         ''),
     'email'        => env('CLIENT_EMAIL',         ''),
