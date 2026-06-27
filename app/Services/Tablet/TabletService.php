@@ -92,9 +92,10 @@ class TabletService
                 $where .= " AND ({$fm['descripcion']} LIKE :search
                              OR  {$fm['codigo']} LIKE :search2
                              OR  {$fm['marca']} LIKE :search3
-                             OR  {$fm['modelo']} LIKE :search4)";
+                             OR  {$fm['barras']} LIKE :searchExact
+                             OR  {$fm['modelo']} LIKE :search5)";
                 $term = '%' . $filters['search'] . '%';
-                $params += ['search' => $term, 'search2' => $term, 'search3' => $term, 'search4' => $term];
+                $params += ['search' => $term, 'search2' => $term, 'search3' => $term, 'searchExact' => $term , 'search5' => $term];
             }
 
             if (! empty($filters['categoria'])) {

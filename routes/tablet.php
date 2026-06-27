@@ -32,6 +32,8 @@ Route::middleware(['auth', 'erp.connection'])->group(function () {
             Route::patch('/carrito/item/{itemId}',    [TabletController::class, 'actualizarCantidad'])->name('carrito.actualizar');
             Route::delete('/carrito/item/{itemId}',   [TabletController::class, 'eliminarItem'])      ->name('carrito.eliminar');
             Route::post('/carrito/enviar-a-caja',     [TabletController::class, 'enviarACaja'])       ->name('carrito.enviar');
+
+            Route::get('/kiosco', [TabletController::class, 'kiosco'])->name('kiosco');
         });
 
         // ── Caja ──────────────────────────────────────────────────────────
@@ -42,5 +44,6 @@ Route::middleware(['auth', 'erp.connection'])->group(function () {
             Route::post('/prepedido/{preOrder}/procesar',  [CajaController::class, 'procesar']) ->name('procesar') ->middleware('can:caja.prepedidos.procesar');
             Route::post('/prepedido/{preOrder}/cancelar',  [CajaController::class, 'cancelar']) ->name('cancelar') ->middleware('can:caja.prepedidos.procesar');
         });
+        
     }
 });

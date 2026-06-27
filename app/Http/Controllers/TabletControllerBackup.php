@@ -3,14 +3,12 @@
 declare(strict_types=1);
 
 namespace App\Http\Controllers;
-use App\Services\Tablet\BarcodeLookupService;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Http\JsonResponse;
 
 use App\Models\PreOrder;
 use App\Services\Tablet\TabletService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 /**
@@ -48,7 +46,7 @@ class TabletController extends Controller
         $carrito = $this->tablet->getBorradorActivo(auth()->id());
         $carrito->load('items');
 
-        return view('tablet.catalogo-nuevo', compact(
+        return view('tablet.catalogo', compact(
             'articulos', 'total', 'totalPages',
             'perPage', 'page', 'filters',
             'categorias', 'marcas',
@@ -56,40 +54,20 @@ class TabletController extends Controller
         ));
     }
 
-    /**
-     * Devuelve la ficha del artículo consultando el motor polimórfico.
-     * Soporta Inyección de Dependencias del BarcodeLookupService.
-     */
-    public function fichaArticulo(string $codigo, BarcodeLookupService $lookupService): JsonResponse
+    // ── Ficha expandida (modal / ajax) ────────────────────────────────────
+    public function fichaArticulo(string $codigo): JsonResponse
     {
-        // Mantenemos tu excelente capa de caché de 30 minutos (1800 segundos)
         $articulo = Cache::remember(
             "tablet:ficha:{$codigo}",
             1800,
-            fn () => $lookupService->find($codigo)
+            fn () => $this->tablet->getArticuloDetalle($codigo)
         );
 
         if (! $articulo) {
-            // Métrica de auditoría: Registrar únicamente los códigos que fallan.
-            // Esto te permitirá detectar rápidamente si hay productos físicos sin cargar en Profit
-            // o si una pistola láser está leyendo códigos incompletos.
-            Log::warning('[ScanMetrics] Artículo no encontrado en Profit', [
-                'codigo_ingresado' => $codigo,
-                'user_id'          => auth()->id() ?? 'Kiosco/Anónimo',
-                'ip'               => request()->ip()
-            ]);
-
-            return response()->json(['error' => 'Articulo no encontrado en el catalogo.'], 404);
+            return response()->json(['error' => 'Artículo no encontrado.'], 404);
         }
 
         return response()->json(['articulo' => $articulo]);
-    }
-
-    // ── Modo Kiosco / Verificador de Precios ────────────────────────────────
-    public function kiosco(): View
-    {
-        $cur = config('app_client.locale.currency_symbol', '$');
-        return view('tablet.kiosco', compact('cur'));
     }
 
     // ── Agregar al carrito ────────────────────────────────────────────────

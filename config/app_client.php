@@ -21,8 +21,8 @@ return [
     | Identidad del Cliente
     |--------------------------------------------------------------------------
     */
-    'name'         => env('CLIENT_NAME',         'JellCelulars'),
-    'short_name'   => env('CLIENT_SHORT_NAME',   'JellCell'),
+    'name'         => env('CLIENT_NAME',         'JelCel'),
+    'short_name'   => env('CLIENT_SHORT_NAME',   'JelCel'),
     'rif'          => env('CLIENT_RIF',           'J-12345678-0'),
     'logo'         => env('CLIENT_LOGO',          'img/logo.png'),      // relativo a public/
     'logo_dark'    => env('CLIENT_LOGO_DARK',     'img/logo-dark.png'), // variante para sidebar oscuro
@@ -129,7 +129,7 @@ return [
     */
     'system' => [
         'name'        => env('SYSTEM_NAME',    'BI Bridge'),
-        'version'     => env('SYSTEM_VERSION', '0.1.0-beta1'),
+        'version'     => env('SYSTEM_VERSION', '1.0.1'),
         'built_by'    => env('SYSTEM_BUILT_BY', 'Ing. Luis Rojas'),
         'support_url' => env('SYSTEM_SUPPORT_URL', 'https://github.com/luisrojas69/'),
     ],

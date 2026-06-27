@@ -48,7 +48,7 @@ return [
         'stock_actual' => 'STOCK_ACT',
         'stock_min'    => 'STOCK_MIN',
         'stock_com'    => 'STOCK_COM',
-        'barras'       => 'CO_ART',
+        'barras'       => 'REF',
         'proveedor'    => 'CO_PROV',
     ],
 
