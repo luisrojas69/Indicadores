@@ -1,58 +1,86 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🌉 BI Bridge Enterprise v1.0.0 🚀
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **Panel Gerencial de Control, Analítica de Datos Comercial y Verificación de Inventario**
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📌 Descripción General
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**BI Bridge** es una solución de inteligencia empresarial (BI) y analítica visual de alto rendimiento, diseñada exclusivamente para abstraer, unificar y procesar la información neurálgica operativa y comercial de la organización.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+A diferencia de los paneles rígidos tradicionales, esta plataforma ofrece un ecosistema ágil y desacoplado que unifica el control gerencial. Permite auditar en tiempo real desde la facturación acumulada, el rendimiento individual de la fuerza de ventas y la antigüedad de las cuentas por cobrar, hasta la fluctuación de los márgenes comerciales brutos, la rotación analítica de inventarios y la verificación interactiva de cara al cliente mediante terminales de autogestión (Kioscos).
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🌟 Filosofía Core: Desacoplamiento Absoluto
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Toda la lógica de negocio se encuentra orquestada a través de interfaces rigurosas y contratos de software en **Laravel**. Esto asegura que la capa de visualización, auditoría e informes gerenciales permanezca intacta e independiente del driver de base de datos o el proveedor del ERP central (**Profit Plus / SQL Server**), garantizando una escalabilidad ilimitada y un mantenimiento limpio.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## 📦 Módulos y Alcance del Sistema
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 📊 1. Módulo de Cuentas por Cobrar (CxC)
 
-```bash
-composer require laravel/boost --dev
+- **Analítica de Cartera:** Análisis profundo de saldos vencidos y estructuración de antigüedad de deuda.
+- **Conciliación Eficiente:** Conciliación implícita de cobros mensuales contra montos facturados en tiempo real.
+- **Proyecciones Financieras:** Modelado matemático y proyección de la cartera corriente para la toma de decisiones.
 
-php artisan boost:install
-```
+### 📈 2. Módulo de Márgenes, Ventas e Indicadores
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+- **Auditoría de Rentabilidad:** Control de rentabilidad bruta por artículo utilizando costos promedio unitarios reales.
+- **Semáforos de Alerta:** Monitoreo visual automático mediante alertas por colores para detectar desviaciones en los márgenes mínimos aceptables.
+- **Comisiones Dinámicas:** Cálculo automatizado de bonificaciones y rendimiento para la fuerza de ventas.
 
-## Contributing
+### 📦 3. Módulo de Inventario Consolidado y Catálogo Digital
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **Trazabilidad de Almacenes:** Auditoría analítica de stock crítico, mínimos, máximos y alertas de reposición.
+- **Flujos de Auditoría:** Monitoreo selectivo de entradas físicas y control estricto de salidas no comerciales.
+- **Catálogo para Asesores:** Interfaz optimizada con búsqueda inteligente para vendedores en piso de venta.
 
-## Code of Conduct
+### 🖥️ 4. Módulo de Autogestión / Kiosco Interactivos (Verificador de Precios)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **Experiencia de Cliente:** Interfaz limpia, optimizada para pantallas táctiles y tablets de atención al público.
+- **Branding Dinámico Inyectado:** Adaptación visual automática de colores de marca, logotipos y RIF del cliente directamente desde variables de entorno CSS.
+- **Mapeo de Categorías Visuales:** Implementación de placeholders e íconos dinámicos basados en emojis según la categoría del ERP.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🛠️ Stack Tecnológico Corporativo
 
-## License
+Construido bajo estándares industriales rígidos, herramientas robustas de código abierto y procesamiento nativo empresarial:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Backend & Core:** Laravel 10.x | PHP 8.2 (Tipado estricto e Inyección de Dependencias)
+- **Bases de Datos & ERP:** Microsoft SQL Server | Profit Plus ERP | MySQL (Caché local/Auditoría)
+- **Procesamiento de Datos:** Python 3 (`openpyxl` para pipelines avanzados de reportes)
+- **Frontend:** Bootstrap 4/5 (SB Admin 2 Modificado) | jQuery | Axios AJAX | DataTables JS
+- **Infraestructura & Seguridad:** Docker Containers | Spatie Permissions (Control de acceso granular por roles)
+
+---
+
+## 📈 Historial de Versiones y Changelog Reciente
+
+### 🚀 v1.0.0 — Producción Estable (Versión Actual)
+
+- **Soporte de Hardware Láser (BarcodeLookupService):** Migración completa del motor de búsqueda de artículos hacia un controlador polimórfico optimizado para el campo `REF` (Códigos de barra nativos del ERP).
+- **Arquitectura de Kiosco basada en Estados:** Reescritura total del módulo Kiosco utilizando capas de estados independientes en el DOM, mitigando al 100% los conflictos de renderizado concurrente.
+- **Control del Watchdog de Tiempos:** Corrección de bug crítico por colisión de temporizadores asíncronos en la pantalla de _"Artículo no encontrado"_.
+- **Mecanismo Anti-Vencimiento de Sesiones (Heartbeat):** Implementación de un ping asíncrono ultra-ligero (`HTTP HEAD`) cada 15 minutos para mantener el token CSRF y la sesión activa de forma indefinida en terminales fijas.
+- **Capa de Caché de Alto Rendimiento:** Inclusión de una capa de memoria intermedia de 30 minutos (1800s) para mitigar consultas repetitivas al servidor de base de datos durante lecturas consecutivas.
+
+### 🧪 v0.1.0-beta1 — Inicial
+
+- Concepción inicial de la arquitectura, diseño relacional y modelado de contratos de software.
+- Estructuración de scripts automatizados e implementación punta a punta de los módulos de CxC, Ventas e Inventario.
+
+---
+
+## 🧑‍💻 Autoría y Arquitectura
+
+- **Desarrollador Principal:** Ing. Luis Rojas (`Senior Full-Stack & Systems Engineer`)
+- **Rol:** Arquitecto de software encargado de la concepción de la arquitectura, diseño relacional, modelado de contratos de software, scripts automatizados e implementación punta a punta de LR-Indicadores / BI Bridge.
+- **Soporte & Repositorio:** [GitHub - Luis Rojas](https://github.com/luisrojas69/)
+
+---
+
+_Propiedad Intelectual de Enterprise. Todos los derechos reservados._
