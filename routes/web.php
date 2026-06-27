@@ -55,10 +55,14 @@ Route::get('/', function () {
 Route::middleware(['auth', 'erp.connection'])->group(function () {
 
     //Acerca de:
-    Route::get('about', function () { return view('about'); })->name('about');
+    Route::get('about', function () {
+        return view('about');
+    })->name('about');
 
     // Rutas de Perfil/Configuración (ejemplo)
-    Route::get('profile', function () { return view('profile'); })->name('profile');
+    Route::get('profile', function () {
+        return view('profile');
+    })->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // ── Dashboard Gerencial ───────────────────────────────────────────────
@@ -80,15 +84,16 @@ Route::middleware(['auth', 'erp.connection'])->group(function () {
         //     ->middleware('can:gerencia.dashboard.exportar');
     });
 
-    require __DIR__.'/financiero.php';
-    require __DIR__.'/inventario.php';
-    require __DIR__.'/articulos.php';
+    require __DIR__ . '/financiero.php';
+    require __DIR__ . '/inventario.php';
+    require __DIR__ . '/articulos.php';
     // CARGA DEL MÓDULO DE ADMINISTRACIÓN
-    require __DIR__.'/admin.php';
+    require __DIR__ . '/admin.php';
     // CARGA DEL MÓDULO DE TABLET (FASE 5)
-    require __DIR__.'/tablet.php';
+    require __DIR__ . '/tablet.php';
     // CARGA DEL MÓDULO DE VENTAS (FASE 1.5)
-    require __DIR__.'/ventas.php';
+    require __DIR__ . '/ventas.php';
+
 
 
     // ── Módulo Financiero (Fase 2) ────────────────────────────────────────

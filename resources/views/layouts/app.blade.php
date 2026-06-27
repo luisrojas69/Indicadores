@@ -704,7 +704,9 @@
 
     </main>
 </div>
-
+@can('gerencia.dashboard.ver')
+    @include('layouts.partials.ai_chat')
+@endcan
 <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
 
 <script src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
@@ -776,5 +778,6 @@
 
 @stack('scripts')
 @yield('scripts')
+
 </body>
 </html>
